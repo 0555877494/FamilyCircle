@@ -1,0 +1,481 @@
+import 'package:flutter/material.dart';
+import 'package:uuid/uuid.dart';
+import 'package:provider/provider.dart';
+import '../models/family.dart';
+import '../models/family_user.dart';
+import '../models/family_kinship.dart';
+import '../models/family_partnership.dart';
+import '../models/family_household.dart';
+import '../models/family_caregiving.dart';
+import '../models/family_function.dart';
+import '../services/family_service.dart';
+import '../theme/app_theme.dart';
+import '../widgets/connection_status.dart';
+
+class FamilyDetailScreen extends StatefulWidget {
+  final Family family;
+  final FamilyUser currentUser;
+  
+  const FamilyDetailScreen({
+    super.key,
+    required this.family,
+    required this.currentUser,
+  });
+
+  @override
+  State<FamilyDetailScreen> createState() => _FamilyDetailScreenState();
+}
+
+class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
+  int _selectedTab = 0;
+  List<FamilyKinshipTie> _kinships = [];
+  List<FamilyPartnership> _partnerships = [];
+  List<FamilyHousehold> _households = [];
+  List<FamilyCaregiving> _caregivings = [];
+  List<FamilyFunction> _functions = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadSampleData();
+  }
+
+  void _loadSampleData() {
+    final familyId = widget.family.id;
+    final now = DateTime.now();
+    
+    _kinships = [
+      FamilyKinshipTie(id: 'kinship_001', familyId: familyId, memberAId: 'user_001', memberBId: 'user_002', kinshipType: KinshipType.parent, isBloodRelation: true),
+      FamilyKinshipTie(id: 'kinship_002', familyId: familyId, memberAId: 'user_001', memberBId: 'user_003', kinshipType: KinshipType.child, isBloodRelation: true),
+      FamilyKinshipTie(id: 'kinship_003', familyId: familyId, memberAId: 'user_002', memberBId: 'user_003', kinshipType: KinshipType.child, isBloodRelation: true),
+      FamilyKinshipTie(id: 'kinship_004', familyId: familyId, memberAId: 'user_001', memberBId: 'user_004', kinshipType: KinshipType.child, isBloodRelation: true),
+      FamilyKinshipTie(id: 'kinship_005', familyId: familyId, memberAId: 'user_002', memberBId: 'user_004', kinshipType: KinshipType.child, isBloodRelation: true),
+      FamilyKinshipTie(id: 'kinship_006', familyId: familyId, memberAId: 'user_003', memberBId: 'user_004', kinshipType: KinshipType.sibling, isBloodRelation: true),
+      FamilyKinshipTie(id: 'kinship_007', familyId: familyId, memberAId: 'user_002', memberBId: 'user_005', kinshipType: KinshipType.parent, isBloodRelation: true),
+      FamilyKinshipTie(id: 'kinship_008', familyId: familyId, memberAId: 'user_005', memberBId: 'user_006', kinshipType: KinshipType.parent, isBloodRelation: true),
+    ];
+    
+    _partnerships = [
+      FamilyPartnership(id: 'partner_001', familyId: familyId, partnerAId: 'user_001', partnerBId: 'user_002', partnershipType: PartnershipType.marriage, startDate: now.subtract(const Duration(days: 365 * 15))),
+    ];
+    
+    _households = [
+      FamilyHousehold(id: 'household_001', familyId: familyId, residenceType: ResidenceType.house, address: '123 Maple Street', city: 'Springfield', state: 'IL', residentMemberIds: ['user_001', 'user_002', 'user_003', 'user_004']),
+    ];
+    
+    _caregivings = [
+      FamilyCaregiving(id: 'care_001', familyId: familyId, caregiverId: 'user_005', recipientId: 'user_003', caregivingType: CaregivingType.parenting),
+      FamilyCaregiving(id: 'care_002', familyId: familyId, caregiverId: 'user_001', recipientId: 'user_005', caregivingType: CaregivingType.elderCare),
+    ];
+    
+    _functions = [
+      FamilyFunction(id: 'func_001', familyId: familyId, functionType: FamilyFunctionType.protection, responsibleMemberIds: ['user_001', 'user_002'], description: '🛡️ Protect family members'),
+      FamilyFunction(id: 'func_002', familyId: familyId, functionType: FamilyFunctionType.economicCooperation, responsibleMemberIds: ['user_001', 'user_002'], description: '🍽️ Provide nutrition'),
+      FamilyFunction(id: 'func_003', familyId: familyId, functionType: FamilyFunctionType.healthcare, responsibleMemberIds: ['user_001', 'user_002'], description: '🏠 Provide shelter'),
+      FamilyFunction(id: 'func_004', familyId: familyId, functionType: FamilyFunctionType.education, responsibleMemberIds: ['user_001', 'user_002'], description: '📚 Educate children'),
+      FamilyFunction(id: 'func_005', familyId: familyId, functionType: FamilyFunctionType.emotionalSupport, responsibleMemberIds: ['user_001', 'user_002', 'user_005'], description: '💕 Emotional support'),
+      FamilyFunction(id: 'func_006', familyId: familyId, functionType: FamilyFunctionType.culturalHeritage, responsibleMemberIds: ['user_005'], description: '🙏 Pass down faith'),
+    ];
+  }
+  
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      appBar: AppBar(
+        title: Text(widget.family.name),
+        actions: const [
+          Padding(padding: EdgeInsets.only(right: 8), child: ConnectionStatusIndicator()),
+        ],
+      ),
+      body: Column(
+        children: [
+          _buildTabBar(),
+          Expanded(child: _buildCurrentTab()),
+        ],
+      ),
+      floatingActionButton: FloatingActionButton(
+        onPressed: _showAddDialog,
+        child: const Icon(Icons.add),
+      ),
+    );
+  }
+
+  Widget _buildTabBar() {
+    final tabs = ['Overview', 'Members', ' Kinship', 'Partnership', 'Household', 'Caregiving', 'Functions'];
+    return SingleChildScrollView(
+      scrollDirection: Axis.horizontal,
+      child: Row(
+        children: List.generate(tabs.length, (i) => 
+          Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
+            child: ChoiceChip(
+              label: Text(tabs[i]),
+              selected: _selectedTab == i,
+              onSelected: (s) => setState(() => _selectedTab = i),
+            ),
+          ),
+        ),
+      ),
+    );
+  }
+
+  Widget _buildCurrentTab() {
+    switch (_selectedTab) {
+      case 0: return _buildOverviewTab();
+      case 1: return _buildMembersTab();
+      case 2: return _buildKinshipTab();
+      case 3: return _buildPartnershipTab();
+      case 4: return _buildHouseholdTab();
+      case 5: return _buildCaregivingTab();
+      case 6: return _buildFunctionsTab();
+      default: return _buildOverviewTab();
+    }
+  }
+
+  Widget _buildOverviewTab() {
+    return ListView(
+      padding: const EdgeInsets.all(16),
+      children: [
+        _buildInfoCard('Family Structure', widget.family.structureType.name.toUpperCase(), Icons.account_tree),
+        if (widget.family.householdName != null)
+          _buildInfoCard('Household Name', widget.family.householdName!, Icons.home),
+        _buildInfoCard('Members', '${widget.family.members.length}', Icons.people),
+        _buildInfoCard('Created', _formatDate(widget.family.createdAt), Icons.calendar_today),
+        const SizedBox(height: 16),
+        _buildInfoCard('Kinship Ties', '${widget.family.kinshipTies.length}', Icons.favorite),
+        _buildInfoCard('Partnerships', '${widget.family.partnerships.length}', Icons.favorite_border),
+        _buildInfoCard('Households', '${widget.family.households.length}', Icons.house),
+        _buildInfoCard('Caregiving', '${widget.family.caregiving.length}', Icons.child_care),
+        _buildInfoCard('Functions', '${widget.family.functions.length}', Icons.functions),
+      ],
+    );
+  }
+
+  Widget _buildInfoCard(String title, String value, IconData icon) {
+    return Card(
+      child: ListTile(
+        leading: Icon(icon, color: AppTheme.primaryColor),
+        title: Text(title),
+        subtitle: Text(value),
+      ),
+    );
+  }
+
+  Widget _buildMembersTab() {
+    return ListView.builder(
+      itemCount: widget.family.members.length,
+      itemBuilder: (ctx, i) {
+        final member = widget.family.members[i];
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: AppTheme.primaryColor,
+            child: Text(member.firstName[0].toUpperCase()),
+          ),
+          title: Text('${member.firstName} ${member.lastName ?? ''}'),
+          subtitle: Text('${member.role.name.toUpperCase()} | ${member.nationality ?? 'No nationality'}'),
+          trailing: member.dateOfBirth != null ? Text(_formatDate(member.dateOfBirth!)) : null,
+        );
+      },
+    );
+  }
+
+  Widget _buildKinshipTab() {
+    if (widget.family.kinshipTies.isEmpty) {
+      return _buildEmptyState('No kinship ties defined', Icons.favorite);
+    }
+    return ListView.builder(
+      itemCount: widget.family.kinshipTies.length,
+      itemBuilder: (ctx, i) {
+        final tie = widget.family.kinshipTies[i];
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: tie.isBloodRelation ? Colors.red[100] : Colors.orange[100],
+            child: Icon(Icons.favorite, color: tie.isBloodRelation ? Colors.red : Colors.orange),
+          ),
+          title: Text(tie.kinshipType.name.toUpperCase()),
+          subtitle: Text('Generation gap: ${tie.generationGap}'),
+        );
+      },
+    );
+  }
+
+  Widget _buildPartnershipTab() {
+    if (widget.family.partnerships.isEmpty) {
+      return _buildEmptyState('No partnerships defined', Icons.favorite_border);
+    }
+    return ListView.builder(
+      itemCount: widget.family.partnerships.length,
+      itemBuilder: (ctx, i) {
+        final p = widget.family.partnerships[i];
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: p.isLegal ? Colors.purple[100] : Colors.blue[100],
+            child: Icon(Icons.favorite_border, color: Colors.purple),
+          ),
+          title: Text(p.partnershipType.name.toUpperCase()),
+          subtitle: Text('${p.status.name.toUpperCase()} | ${p.isLegal ? "Legal" : "Non-legal"}'),
+          trailing: p.startDate != null ? Text(_formatDate(p.startDate!)) : null,
+        );
+      },
+    );
+  }
+
+  Widget _buildHouseholdTab() {
+    if (widget.family.households.isEmpty) {
+      return _buildEmptyState('No households defined', Icons.house);
+    }
+    return ListView.builder(
+      itemCount: widget.family.households.length,
+      itemBuilder: (ctx, i) {
+        final h = widget.family.households[i];
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.green[100],
+            child: const Icon(Icons.house, color: Colors.green),
+          ),
+          title: Text(h.name ?? 'Household'),
+          subtitle: Text('${h.householdType.name.toUpperCase()} | ${h.residentMemberIds.length} residents'),
+          trailing: h.isPrimaryResidence ? const Chip(label: Text('Primary')) : null,
+        );
+      },
+    );
+  }
+
+  Widget _buildCaregivingTab() {
+    if (widget.family.caregiving.isEmpty) {
+      return _buildEmptyState('No caregiving arrangements defined', Icons.child_care);
+    }
+    return ListView.builder(
+      itemCount: widget.family.caregiving.length,
+      itemBuilder: (ctx, i) {
+        final c = widget.family.caregiving[i];
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: c.isPrimary ? Colors.amber[100] : Colors.grey[200],
+            child: Icon(Icons.child_care, color: c.isPrimary ? Colors.amber : Colors.grey),
+          ),
+          title: Text(c.caregivingType.name.toUpperCase()),
+          subtitle: Text('${c.arrangement.name.toUpperCase()} | ${c.responsibilityPercentage.toInt()}%'),
+          trailing: c.isLegalCustody ? const Chip(label: Text('Legal')) : null,
+        );
+      },
+    );
+  }
+
+  Widget _buildFunctionsTab() {
+    if (widget.family.functions.isEmpty) {
+      return _buildEmptyState('No family functions defined', Icons.functions);
+    }
+    return ListView.builder(
+      itemCount: widget.family.functions.length,
+      itemBuilder: (ctx, i) {
+        final f = widget.family.functions[i];
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: _getFunctionColor(f.functionType),
+            child: Icon(_getFunctionIcon(f.functionType), color: Colors.white),
+          ),
+          title: Text(f.displayName),
+          subtitle: Text('${f.status.name.toUpperCase()} | ${f.responsibleMemberIds.length} responsible'),
+        );
+      },
+    );
+  }
+
+  Color _getFunctionColor(FamilyFunctionType type) {
+    switch (type) {
+      case FamilyFunctionType.procreation: return Colors.pink;
+      case FamilyFunctionType.childRearing: return Colors.orange;
+      case FamilyFunctionType.economicCooperation: return Colors.green;
+      case FamilyFunctionType.socialization: return Colors.blue;
+      case FamilyFunctionType.emotionalSupport: return Colors.purple;
+      case FamilyFunctionType.identityTransmission: return Colors.teal;
+      case FamilyFunctionType.culturalHeritage: return Colors.brown;
+      case FamilyFunctionType.education: return Colors.indigo;
+      case FamilyFunctionType.healthcare: return Colors.red;
+      case FamilyFunctionType.protection: return Colors.grey;
+    }
+  }
+
+  IconData _getFunctionIcon(FamilyFunctionType type) {
+    switch (type) {
+      case FamilyFunctionType.procreation: return Icons.child_friendly;
+      case FamilyFunctionType.childRearing: return Icons.family_restroom;
+      case FamilyFunctionType.economicCooperation: return Icons.attach_money;
+      case FamilyFunctionType.socialization: return Icons.groups;
+      case FamilyFunctionType.emotionalSupport: return Icons.favorite;
+      case FamilyFunctionType.identityTransmission: return Icons.badge;
+      case FamilyFunctionType.culturalHeritage: return Icons.museum;
+      case FamilyFunctionType.education: return Icons.school;
+      case FamilyFunctionType.healthcare: return Icons.local_hospital;
+      case FamilyFunctionType.protection: return Icons.shield;
+    }
+  }
+
+  Widget _buildEmptyState(String message, IconData icon) {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(icon, size: 64, color: Colors.grey[400]),
+          const SizedBox(height: 16),
+          Text(message, style: TextStyle(color: Colors.grey[600], fontSize: 16)),
+        ],
+      ),
+    );
+  }
+
+  void _showAddDialog() {
+    showModalBottomSheet(
+      context: context,
+      builder: (ctx) => Column(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          ListTile(
+            leading: const Icon(Icons.person_add),
+            title: const Text('Add Kinship'),
+            onTap: () { Navigator.pop(ctx); _showAddKinshipDialog(); },
+          ),
+          ListTile(
+            leading: const Icon(Icons.favorite_border),
+            title: const Text('Add Partnership'),
+            onTap: () { Navigator.pop(ctx); _showAddPartnershipDialog(); },
+          ),
+          ListTile(
+            leading: const Icon(Icons.home),
+            title: const Text('Add Household'),
+            onTap: () { Navigator.pop(ctx); _showAddHouseholdDialog(); },
+          ),
+          ListTile(
+            leading: const Icon(Icons.child_care),
+            title: const Text('Add Caregiving'),
+            onTap: () { Navigator.pop(ctx); _showAddCaregivingDialog(); },
+          ),
+          ListTile(
+            leading: const Icon(Icons.functions),
+            title: const Text('Add Function'),
+            onTap: () { Navigator.pop(ctx); _showAddFunctionDialog(); },
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showAddKinshipDialog() {
+    final memberAController = TextEditingController();
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add Kinship Tie'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(controller: memberAController, decoration: const InputDecoration(labelText: 'Member A ID')),
+            const SizedBox(height: 8),
+            DropdownButton<String>(
+              hint: const Text('Kinship Type'),
+              items: KinshipType.values.map((t) => DropdownMenuItem(value: t.name, child: Text(t.name))).toList(),
+              onChanged: (v) {},
+            ),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Add')),
+        ],
+      ),
+    );
+  }
+
+  void _showAddPartnershipDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add Partnership'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DropdownButton<String>(
+              hint: const Text('Partnership Type'),
+              items: PartnershipType.values.map((t) => DropdownMenuItem(value: t.name, child: Text(t.name))).toList(),
+              onChanged: (v) {},
+            ),
+            SwitchListTile(title: const Text('Legal'), value: false, onChanged: (v) {}),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Add')),
+        ],
+      ),
+    );
+  }
+
+  void _showAddHouseholdDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add Household'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            TextField(decoration: const InputDecoration(labelText: 'Household Name')),
+            const SizedBox(height: 8),
+            TextField(decoration: const InputDecoration(labelText: 'Address')),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Add')),
+        ],
+      ),
+    );
+  }
+
+  void _showAddCaregivingDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add Caregiving'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            DropdownButton<String>(
+              hint: const Text('Caregiving Type'),
+              items: CaregivingType.values.map((t) => DropdownMenuItem(value: t.name, child: Text(t.name))).toList(),
+              onChanged: (v) {},
+            ),
+            SwitchListTile(title: const Text('Primary'), value: false, onChanged: (v) {}),
+            SwitchListTile(title: const Text('Legal Custody'), value: false, onChanged: (v) {}),
+          ],
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Add')),
+        ],
+      ),
+    );
+  }
+
+  void _showAddFunctionDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Add Family Function'),
+        content: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: FamilyFunctionType.values
+              .map((t) => ListTile(title: Text(t.name), onTap: () {}))
+              .toList(),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+        ],
+      ),
+    );
+  }
+
+  String _formatDate(DateTime date) {
+    return '${date.month}/${date.day}/${date.year}';
+  }
+}
