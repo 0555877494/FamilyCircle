@@ -10,6 +10,8 @@ import '../models/family_history.dart';
 import '../models/family_legacy.dart';
 import '../services/file_service.dart';
 import '../widgets/connection_status.dart';
+import '../theme/app_colors.dart';
+import '../theme/modern_ui.dart';
 
 class LegacyScreen extends StatefulWidget {
   final FamilyUser currentUser;
@@ -312,59 +314,119 @@ class _LegacyScreenState extends State<LegacyScreen> {
   }
 
   Widget _buildFeatureCard(String title, String subtitle, IconData icon, VoidCallback onTap) {
-    return Card(
-      margin: const EdgeInsets.only(bottom: 8),
-      child: ListTile(
-        leading: CircleAvatar(child: Icon(icon)),
-        title: Text(title, style: const TextStyle(fontWeight: FontWeight.bold)),
-        subtitle: Text(subtitle),
-        trailing: const Icon(Icons.add),
-        onTap: onTap,
+    return HoverCard(
+      onTap: onTap,
+      margin: const EdgeInsets.only(bottom: 12),
+      child: Padding(
+        padding: const EdgeInsets.all(16),
+        child: Row(
+          children: [
+            Container(
+              width: 48,
+              height: 48,
+              decoration: BoxDecoration(
+                color: AppColors.primary.withValues(alpha: 0.1),
+                borderRadius: BorderRadius.circular(12),
+              ),
+              child: Icon(icon, color: AppColors.primary),
+            ),
+            const SizedBox(width: 16),
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+                  const SizedBox(height: 4),
+                  Text(subtitle, style: TextStyle(color: Colors.grey.shade600, fontSize: 13)),
+                ],
+              ),
+            ),
+            Icon(Icons.chevron_right, color: Colors.grey.shade400),
+          ],
+        ),
       ),
     );
   }
 
   void _showAddDialog(String title) {
+    final nameController = TextEditingController();
+    final descController = TextEditingController();
+
     showDialog(
       context: context,
       builder: (ctx) => AlertDialog(
-        title: Text(title),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            const Text('Add photos, documents, or media to this record.'),
-            const SizedBox(height: 16),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: [
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.photo_library),
-                  label: const Text('Gallery'),
-                  onPressed: () => _pickFile(ctx, 'photo'),
+        title: Text('Add $title'),
+        content: SizedBox(
+          width: 400,
+          child: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              TextField(
+                controller: nameController,
+                decoration: const InputDecoration(
+                  labelText: 'Name/Title',
+                  hintText: 'Enter a title for this record',
+                  border: OutlineInputBorder(),
                 ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.camera_alt),
-                  label: const Text('Camera'),
-                  onPressed: () => _pickFile(ctx, 'camera'),
+              ),
+              const SizedBox(height: 12),
+              TextField(
+                controller: descController,
+                maxLines: 3,
+                decoration: const InputDecoration(
+                  labelText: 'Description',
+                  hintText: 'Add details about this record',
+                  border: OutlineInputBorder(),
+                  alignLabelWithHint: true,
                 ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.videocam),
-                  label: const Text('Video'),
-                  onPressed: () => _pickFile(ctx, 'video'),
-                ),
-                ElevatedButton.icon(
-                  icon: const Icon(Icons.description),
-                  label: const Text('Document'),
-                  onPressed: () => _pickFile(ctx, 'document'),
-                ),
-              ],
-            ),
-          ],
+              ),
+              const SizedBox(height: 16),
+              const Divider(),
+              const SizedBox(height: 12),
+              const Text('Add Media', style: TextStyle(fontWeight: FontWeight.w500)),
+              const SizedBox(height: 8),
+              Wrap(
+                spacing: 8,
+                runSpacing: 8,
+                children: [
+                  ActionChip(
+                    avatar: const Icon(Icons.photo_library, size: 18),
+                    label: const Text('Gallery'),
+                    onPressed: () => _pickFile(ctx, 'photo'),
+                  ),
+                  ActionChip(
+                    avatar: const Icon(Icons.camera_alt, size: 18),
+                    label: const Text('Camera'),
+                    onPressed: () => _pickFile(ctx, 'camera'),
+                  ),
+                  ActionChip(
+                    avatar: const Icon(Icons.videocam, size: 18),
+                    label: const Text('Video'),
+                    onPressed: () => _pickFile(ctx, 'video'),
+                  ),
+                  ActionChip(
+                    avatar: const Icon(Icons.description, size: 18),
+                    label: const Text('Document'),
+                    onPressed: () => _pickFile(ctx, 'document'),
+                  ),
+                ],
+              ),
+            ],
+          ),
         ),
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
-          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Save')),
+          ElevatedButton(
+            onPressed: () {
+              if (nameController.text.isNotEmpty) {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  SnackBar(content: Text('$title added successfully')),
+                );
+              }
+            },
+            child: const Text('Save'),
+          ),
         ],
       ),
     );

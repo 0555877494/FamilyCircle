@@ -1,9 +1,32 @@
 import 'package:flutter/material.dart';
+import 'package:vibration/vibration.dart';
 import '../theme/modern_ui.dart';
 import '../theme/responsive.dart';
 import '../theme/app_colors.dart';
 import '../widgets/connection_status.dart';
+import '../widgets/skeleton_loader.dart';
 import '../models/app_settings.dart';
+import '../services/settings_service.dart';
+import '../services/auth_service.dart';
+import 'profile_screen.dart';
+import 'privacy_security_screen.dart';
+import 'chat_settings_screen.dart';
+import 'video_call_settings_screen.dart';
+import 'family_members_screen.dart';
+import 'data_usage_screen.dart';
+import 'accessibility_screen.dart';
+import 'safe_zones_screen.dart';
+import 'family_rules_screen.dart';
+import 'check_ins_screen.dart';
+import 'parental_controls_screen.dart';
+import 'group_messaging_screen.dart';
+import 'backup_screen.dart';
+import 'export_data_screen.dart';
+import 'help_center_screen.dart';
+import 'feedback_screen.dart';
+import 'report_problem_screen.dart';
+import 'terms_of_service_screen.dart';
+import 'licenses_screen.dart';
 
 class AppSettingsScreen extends StatefulWidget {
   final AppSettings? initialSettings;
@@ -16,26 +39,41 @@ class AppSettingsScreen extends StatefulWidget {
 }
 
 class _AppSettingsScreenState extends State<AppSettingsScreen> {
-  late AppSettings _settings;
+  AppSettings? _settings;
   final _searchController = TextEditingController();
   String _searchQuery = '';
+  final _settingsService = SettingsService();
+  final _authService = AuthService();
 
   @override
   void initState() {
     super.initState();
-    _settings = widget.initialSettings ?? AppSettings();
+    _loadSettings();
   }
 
-  void _updateSettings(AppSettings newSettings) {
+  Future<void> _loadSettings() async {
+    final settings = await _settingsService.loadSettings();
+    setState(() => _settings = settings);
+  }
+
+  Future<void> _updateSettings(AppSettings newSettings) async {
     setState(() => _settings = newSettings);
     widget.onSettingsChanged?.call(newSettings);
+    await _settingsService.saveSettings(newSettings);
+    await Vibration.vibrate(duration: 10);
+    if (mounted) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Settings updated'), duration: Duration(seconds: 1)),
+      );
+    }
   }
 
-  String _getThemeLabel(ThemeMode mode) {
+  String _getThemeLabel(ThemeMode? mode) {
+    if (mode == null) return 'System';
     switch (mode) {
-      case ThemeMode.system: return 'System';
       case ThemeMode.light: return 'Light';
       case ThemeMode.dark: return 'Dark';
+      default: return 'System';
     }
   }
 
@@ -48,27 +86,27 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           ListTile(
             title: const Text('System'),
             leading: const Icon(Icons.settings_suggest),
-            trailing: _settings.themeMode == ThemeMode.system ? const Icon(Icons.check) : null,
+            trailing: _settings!.themeMode == ThemeMode.system ? const Icon(Icons.check) : null,
             onTap: () {
-              _updateSettings(_settings.copyWith(themeMode: ThemeMode.system));
+              _updateSettings(_settings!.copyWith(themeMode: ThemeMode.system));
               Navigator.pop(ctx);
             },
           ),
           ListTile(
             title: const Text('Light'),
             leading: const Icon(Icons.light_mode),
-            trailing: _settings.themeMode == ThemeMode.light ? const Icon(Icons.check) : null,
+            trailing: _settings!.themeMode == ThemeMode.light ? const Icon(Icons.check) : null,
             onTap: () {
-              _updateSettings(_settings.copyWith(themeMode: ThemeMode.light));
+              _updateSettings(_settings!.copyWith(themeMode: ThemeMode.light));
               Navigator.pop(ctx);
             },
           ),
           ListTile(
             title: const Text('Dark'),
             leading: const Icon(Icons.dark_mode),
-            trailing: _settings.themeMode == ThemeMode.dark ? const Icon(Icons.check) : null,
+            trailing: _settings!.themeMode == ThemeMode.dark ? const Icon(Icons.check) : null,
             onTap: () {
-              _updateSettings(_settings.copyWith(themeMode: ThemeMode.dark));
+              _updateSettings(_settings!.copyWith(themeMode: ThemeMode.dark));
               Navigator.pop(ctx);
             },
           ),
@@ -85,9 +123,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         children: [0.8, 0.9, 1.0, 1.1, 1.2, 1.3].map((scale) {
           return ListTile(
             title: Text('${(scale * 100).toInt()}%'),
-            trailing: _settings.fontScale == scale ? const Icon(Icons.check) : null,
+            trailing: _settings!.fontScale == scale ? const Icon(Icons.check) : null,
             onTap: () {
-              _updateSettings(_settings.copyWith(fontScale: scale));
+              _updateSettings(_settings!.copyWith(fontScale: scale));
               Navigator.pop(ctx);
             },
           );
@@ -104,9 +142,9 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         children: [0.8, 0.9, 1.0, 1.1, 1.2].map((scale) {
           return ListTile(
             title: Text('${(scale * 100).toInt()}%'),
-            trailing: _settings.displayScale == scale ? const Icon(Icons.check) : null,
+            trailing: _settings!.displayScale == scale ? const Icon(Icons.check) : null,
             onTap: () {
-              _updateSettings(_settings.copyWith(displayScale: scale));
+              _updateSettings(_settings!.copyWith(displayScale: scale));
               Navigator.pop(ctx);
             },
           );
@@ -123,17 +161,17 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
         children: [
           SwitchListTile(
             title: const Text('Enable Screen Time Limit'),
-            value: _settings.screenTimeLimitEnabled,
-            onChanged: (v) => _updateSettings(_settings.copyWith(screenTimeLimitEnabled: v)),
+            value: _settings!.screenTimeLimitEnabled,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(screenTimeLimitEnabled: v)),
           ),
-          if (_settings.screenTimeLimitEnabled) ...[
+          if (_settings!.screenTimeLimitEnabled) ...[
             const Divider(),
             ...[30, 60, 90, 120, 180, 240].map((minutes) {
               return ListTile(
                 title: Text('${minutes ~/ 60}h${minutes % 60 > 0 ? ' ${minutes % 60}m' : ''}'),
-                trailing: _settings.screenTimeLimitMinutes == minutes ? const Icon(Icons.check) : null,
+                trailing: _settings!.screenTimeLimitMinutes == minutes ? const Icon(Icons.check) : null,
                 onTap: () {
-                  _updateSettings(_settings.copyWith(screenTimeLimitMinutes: minutes));
+                  _updateSettings(_settings!.copyWith(screenTimeLimitMinutes: minutes));
                   Navigator.pop(ctx);
                 },
               );
@@ -182,10 +220,21 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
       title: 'Account',
       icon: Icons.person_outline,
       items: [
-        SettingsItem(title: 'Profile', subtitle: 'Edit your profile info', icon: Icons.badge_outlined, onTap: () {}),
-        SettingsItem(title: 'Family Members', subtitle: 'Manage family', icon: Icons.people_outline, onTap: () {}),
-        SettingsItem(title: 'Privacy', subtitle: 'Control your privacy', icon: Icons.shield_outlined, onTap: () {}),
-        SettingsItem(title: 'Security', subtitle: 'Password & security', icon: Icons.lock_outline, onTap: () {}),
+        SettingsItem(title: 'Profile', subtitle: 'Edit your profile info', icon: Icons.badge_outlined, onTap: () async {
+          final userId = await _authService.getCurrentUserId();
+          if (userId != null && mounted) {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => ProfileScreen(userId: userId)));
+          }
+        }),
+        SettingsItem(title: 'Family Members', subtitle: 'Manage family', icon: Icons.people_outline, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const FamilyMembersScreen()));
+        }),
+        SettingsItem(title: 'Privacy', subtitle: 'Control your privacy', icon: Icons.shield_outlined, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacySecurityScreen()));
+        }),
+        SettingsItem(title: 'Security', subtitle: 'Password & security', icon: Icons.lock_outline, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const PrivacySecurityScreen()));
+        }),
       ],
     ),
     SettingsCategory(
@@ -194,31 +243,31 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
       items: [
         SettingsItem(
           title: 'Push Notifications', 
-          subtitle: _settings.notificationsEnabled ? 'Enabled' : 'Disabled', 
+          subtitle: _settings!.notificationsEnabled ? 'Enabled' : 'Disabled', 
           icon: Icons.notifications_active_outlined, 
           trailing: Switch(
-            value: _settings.notificationsEnabled,
-            onChanged: (v) => _updateSettings(_settings.copyWith(notificationsEnabled: v)),
+            value: _settings!.notificationsEnabled,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(notificationsEnabled: v)),
           ),
           onTap: () {},
         ),
         SettingsItem(
           title: 'Email Notifications', 
-          subtitle: _settings.emailNotificationsEnabled ? 'Enabled' : 'Disabled', 
+          subtitle: _settings!.emailNotificationsEnabled ? 'Enabled' : 'Disabled', 
           icon: Icons.email_outlined, 
           trailing: Switch(
-            value: _settings.emailNotificationsEnabled,
-            onChanged: (v) => _updateSettings(_settings.copyWith(emailNotificationsEnabled: v)),
+            value: _settings!.emailNotificationsEnabled,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(emailNotificationsEnabled: v)),
           ),
           onTap: () {},
         ),
         SettingsItem(
           title: 'SMS Alerts', 
-          subtitle: _settings.smsAlertsEnabled ? 'Enabled' : 'Disabled', 
+          subtitle: _settings!.smsAlertsEnabled ? 'Enabled' : 'Disabled', 
           icon: Icons.sms_outlined, 
           trailing: Switch(
-            value: _settings.smsAlertsEnabled,
-            onChanged: (v) => _updateSettings(_settings.copyWith(smsAlertsEnabled: v)),
+            value: _settings!.smsAlertsEnabled,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(smsAlertsEnabled: v)),
           ),
           onTap: () {},
         ),
@@ -229,51 +278,124 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
       title: 'Appearance',
       icon: Icons.palette_outlined,
       items: [
-        SettingsItem(title: 'Theme', subtitle: _getThemeLabel(_settings.themeMode), icon: Icons.dark_mode_outlined, onTap: _showThemePicker),
-        SettingsItem(title: 'Font Size', subtitle: '${(_settings.fontScale * 100).toInt()}%', icon: Icons.text_fields, onTap: _showFontScalePicker),
-        SettingsItem(title: 'Display Size', subtitle: '${(_settings.displayScale * 100).toInt()}%', icon: Icons.aspect_ratio, onTap: _showDisplayScalePicker),
+        SettingsItem(title: 'Theme', subtitle: _getThemeLabel(_settings!.themeMode), icon: Icons.dark_mode_outlined, onTap: _showThemePicker),
+        SettingsItem(title: 'Font Size', subtitle: '${(_settings!.fontScale * 100).toInt()}%', icon: Icons.text_fields, onTap: _showFontScalePicker),
+        SettingsItem(title: 'Display Size', subtitle: '${(_settings!.displayScale * 100).toInt()}%', icon: Icons.aspect_ratio, onTap: _showDisplayScalePicker),
         SettingsItem(
-          title: 'Kid Mode', 
-          subtitle: _settings.kidModeEnabled ? 'Enabled' : 'Disabled', 
-          icon: Icons.child_care, 
+          title: 'Data Saver',
+          subtitle: _settings!.dataSaverMode ? 'Enabled' : 'Disabled',
+          icon: Icons.data_usage,
           trailing: Switch(
-            value: _settings.kidModeEnabled,
-            onChanged: (v) => _updateSettings(_settings.copyWith(kidModeEnabled: v)),
+            value: _settings!.dataSaverMode,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(dataSaverMode: v)),
+          ),
+          onTap: () {
+            showDialog(
+              context: context,
+              builder: (ctx) => AlertDialog(
+                title: const Text('Data Saver'),
+                content: const Text('Reduces data usage by loading lower quality images and disabling auto-play videos. Useful when on metered connections.'),
+                actions: [TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Got it'))],
+              ),
+            );
+          },
+        ),
+        SettingsItem(
+          title: 'Notifications', 
+          subtitle: _settings!.notificationsEnabled ? 'Enabled' : 'Disabled', 
+          icon: Icons.notifications_outlined, 
+          trailing: Switch(
+            value: _settings!.notificationsEnabled,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(notificationsEnabled: v)),
           ),
           onTap: () {},
         ),
+        SettingsItem(title: 'Accessibility', subtitle: 'Accessibility options', icon: Icons.accessibility_outlined, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const AccessibilityScreen()));
+        }),
       ],
     ),
     SettingsCategory(
       title: 'Family',
       icon: Icons.family_restroom,
       items: [
-        SettingsItem(title: 'Family Rules', subtitle: 'Manage family rules', icon: Icons.rule_folder, onTap: () {}),
+        SettingsItem(title: 'Family Rules', subtitle: 'Manage family rules', icon: Icons.rule_folder, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const FamilyRulesScreen()));
+        }),
         SettingsItem(
           title: 'Safe Zones', 
-          subtitle: _settings.safeZonesEnabled ? 'Enabled' : 'Disabled', 
+          subtitle: _settings!.safeZonesEnabled ? 'Enabled' : 'Disabled', 
           icon: Icons.location_on_outlined, 
           trailing: Switch(
-            value: _settings.safeZonesEnabled,
-            onChanged: (v) => _updateSettings(_settings.copyWith(safeZonesEnabled: v)),
+            value: _settings!.safeZonesEnabled,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(safeZonesEnabled: v)),
           ),
-          onTap: () {},
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const SafeZonesScreen()));
+          },
         ),
         SettingsItem(
           title: 'Screen Time', 
-          subtitle: _settings.screenTimeLimitEnabled ? _settings.formattedScreenTime : 'Disabled', 
+          subtitle: _settings!.screenTimeLimitEnabled ? _settings!.formattedScreenTime : 'Disabled', 
           icon: Icons.timer_outlined, 
           onTap: _showScreenTimePicker,
         ),
         SettingsItem(
           title: 'Content Filters', 
-          subtitle: _settings.contentFilterEnabled ? 'Enabled' : 'Disabled', 
+          subtitle: _settings!.contentFilterEnabled ? 'Enabled' : 'Disabled', 
           icon: Icons.filter_alt_outlined, 
           trailing: Switch(
-            value: _settings.contentFilterEnabled,
-            onChanged: (v) => _updateSettings(_settings.copyWith(contentFilterEnabled: v)),
+            value: _settings!.contentFilterEnabled,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(contentFilterEnabled: v)),
           ),
           onTap: () {},
+        ),
+        SettingsItem(title: 'Check-ins', subtitle: 'Location check-in settings', icon: Icons.check_circle_outline, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const CheckInsScreen()));
+        }),
+      ],
+    ),
+    SettingsCategory(
+      title: 'Parental Controls',
+      icon: Icons.admin_panel_settings,
+      items: [
+        SettingsItem(
+          title: 'Screen Time & Bedtime',
+          subtitle: _settings!.screenTimeLimitEnabled ? _settings!.formattedScreenTime : 'Disabled',
+          icon: Icons.bedtime_outlined,
+          onTap: () {
+            Navigator.push(
+              context,
+              MaterialPageRoute(
+                builder: (_) => ParentalControlsScreen(
+                  familyId: 'current_family_id',
+                  memberId: 'current_user_id',
+                ),
+              ),
+            );
+          },
+        ),
+        SettingsItem(
+          title: 'Content Filtering',
+          subtitle: _settings!.contentFilterEnabled ? 'Enabled' : 'Disabled',
+          icon: Icons.filter_alt_outlined,
+          trailing: Switch(
+            value: _settings!.contentFilterEnabled,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(contentFilterEnabled: v)),
+          ),
+          onTap: () {},
+        ),
+        SettingsItem(
+          title: 'Safe Zones',
+          subtitle: _settings!.safeZonesEnabled ? 'Enabled' : 'Disabled',
+          icon: Icons.location_on_outlined,
+          trailing: Switch(
+            value: _settings!.safeZonesEnabled,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(safeZonesEnabled: v)),
+          ),
+          onTap: () {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => const SafeZonesScreen()));
+          },
         ),
       ],
     ),
@@ -281,27 +403,34 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
       title: 'Communication',
       icon: Icons.chat_bubble_outline,
       items: [
-        SettingsItem(title: 'Chat Settings', subtitle: 'Message preferences', icon: Icons.chat_outlined, onTap: () {}),
-        SettingsItem(title: 'Video Calls', subtitle: 'Call preferences', icon: Icons.videocam_outlined, onTap: () {}),
-        SettingsItem(title: 'Group Messaging', subtitle: 'Group settings', icon: Icons.groups_outlined, onTap: () {}),
-        SettingsItem(title: 'Check-ins', subtitle: 'Location check-in settings', icon: Icons.check_circle_outline, onTap: () {}),
+        SettingsItem(title: 'Chat Settings', subtitle: 'Message preferences', icon: Icons.chat_outlined, onTap: () {
+          if (_settings != null) {
+            Navigator.push(context, MaterialPageRoute(builder: (_) => ChatSettingsScreen(settings: _settings!)));
+          }
+        }),
+        SettingsItem(title: 'Video Calls', subtitle: 'Call preferences', icon: Icons.videocam_outlined, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const VideoCallSettingsScreen()));
+        }),
+        SettingsItem(title: 'Group Messaging', subtitle: 'Group settings', icon: Icons.groups_outlined, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const GroupMessagingScreen()));
+        }),
         SettingsItem(
           title: 'Location Sharing', 
-          subtitle: _settings.locationSharingEnabled ? 'Enabled' : 'Disabled', 
+          subtitle: _settings!.locationSharingEnabled ? 'Enabled' : 'Disabled', 
           icon: Icons.share_location, 
           trailing: Switch(
-            value: _settings.locationSharingEnabled,
-            onChanged: (v) => _updateSettings(_settings.copyWith(locationSharingEnabled: v)),
+            value: _settings!.locationSharingEnabled,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(locationSharingEnabled: v)),
           ),
           onTap: () {},
         ),
         SettingsItem(
           title: 'Emergency Broadcast', 
-          subtitle: _settings.emergencyBroadcastEnabled ? 'Enabled' : 'Disabled', 
+          subtitle: _settings!.emergencyBroadcastEnabled ? 'Enabled' : 'Disabled', 
           icon: Icons.warning_amber, 
           trailing: Switch(
-            value: _settings.emergencyBroadcastEnabled,
-            onChanged: (v) => _updateSettings(_settings.copyWith(emergencyBroadcastEnabled: v)),
+            value: _settings!.emergencyBroadcastEnabled,
+            onChanged: (v) => _updateSettings(_settings!.copyWith(emergencyBroadcastEnabled: v)),
           ),
           onTap: () {},
         ),
@@ -311,19 +440,31 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
       title: 'Storage & Data',
       icon: Icons.storage_outlined,
       items: [
-        SettingsItem(title: 'Data Usage', subtitle: 'View data usage', icon: Icons.data_usage, onTap: () {}),
+        SettingsItem(title: 'Data Usage', subtitle: 'View data usage', icon: Icons.data_usage, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const DataUsageScreen()));
+        }),
         SettingsItem(title: 'Clear Cache', subtitle: 'Free up space', icon: Icons.cleaning_services_outlined, onTap: _clearCache),
-        SettingsItem(title: 'Backup', subtitle: 'Backup your data', icon: Icons.backup_outlined, onTap: () {}),
-        SettingsItem(title: 'Export Data', subtitle: 'Export your data', icon: Icons.download_outlined, onTap: () {}),
+        SettingsItem(title: 'Backup', subtitle: 'Backup your data', icon: Icons.backup_outlined, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const BackupScreen()));
+        }),
+        SettingsItem(title: 'Export Data', subtitle: 'Export your data', icon: Icons.download_outlined, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const ExportDataScreen()));
+        }),
       ],
     ),
     SettingsCategory(
       title: 'Help & Support',
       icon: Icons.help_outline,
       items: [
-        SettingsItem(title: 'Help Center', subtitle: 'Get help', icon: Icons.help_center, onTap: () {}),
-        SettingsItem(title: 'Send Feedback', subtitle: 'Send feedback to us', icon: Icons.feedback_outlined, onTap: () {}),
-        SettingsItem(title: 'Report a Problem', subtitle: 'Report issues', icon: Icons.bug_report_outlined, onTap: () {}),
+        SettingsItem(title: 'Help Center', subtitle: 'Get help', icon: Icons.help_center, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const HelpCenterScreen()));
+        }),
+        SettingsItem(title: 'Send Feedback', subtitle: 'Send feedback to us', icon: Icons.feedback_outlined, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const FeedbackScreen()));
+        }),
+        SettingsItem(title: 'Report a Problem', subtitle: 'Report issues', icon: Icons.bug_report_outlined, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const ReportProblemScreen()));
+        }),
         SettingsItem(title: 'Privacy Policy', subtitle: 'View privacy policy', icon: Icons.privacy_tip_outlined, onTap: () {}),
       ],
     ),
@@ -332,8 +473,12 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
       icon: Icons.info_outline,
       items: [
         SettingsItem(title: 'App Version', subtitle: '1.0.0', icon: Icons.new_releases_outlined, onTap: () {}),
-        SettingsItem(title: 'Terms of Service', subtitle: 'View terms', icon: Icons.description_outlined, onTap: () {}),
-        SettingsItem(title: 'Open Source Licenses', subtitle: 'View licenses', icon: Icons.code, onTap: () {}),
+        SettingsItem(title: 'Terms of Service', subtitle: 'View terms', icon: Icons.description_outlined, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const TermsOfServiceScreen()));
+        }),
+        SettingsItem(title: 'Open Source Licenses', subtitle: 'View licenses', icon: Icons.code, onTap: () {
+          Navigator.push(context, MaterialPageRoute(builder: (_) => const LicensesScreen()));
+        }),
         SettingsItem(title: 'Developer Options', subtitle: 'Dev settings', icon: Icons.developer_mode, onTap: () {}),
       ],
     ),
@@ -365,8 +510,13 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           'Settings',
           style: TextStyle(fontWeight: FontWeight.bold, color: Colors.black87),
         ),
-        actions: const [
-          Padding(padding: EdgeInsets.only(right: 8), child: ConnectionStatusIndicator()),
+        actions: [
+          IconButton(
+            icon: const Icon(Icons.restore),
+            tooltip: 'Reset to Defaults',
+            onPressed: _showResetDialog,
+          ),
+          const Padding(padding: EdgeInsets.only(right: 8), child: ConnectionStatusIndicator()),
         ],
       ),
       body: ResponsiveWrapper(
@@ -374,17 +524,74 @@ class _AppSettingsScreenState extends State<AppSettingsScreen> {
           children: [
             _buildSearchBar(),
             Expanded(
-              child: AutoScrollContainer(
-                alwaysScroll: true,
-                child: ListView.builder(
-                  padding: const EdgeInsets.all(16),
-                  itemCount: _filteredCategories.length,
-                  itemBuilder: (ctx, i) => _buildCategorySection(_filteredCategories[i]),
-                ),
-              ),
+              child: _filteredCategories.isEmpty
+                  ? _buildEmptyState()
+                  : RefreshIndicator(
+                      onRefresh: () async {
+                        final settings = await _settingsService.loadSettings();
+                        setState(() => _settings = settings);
+                      },
+                      child: _settings == null
+                          ? const SettingsSkeleton()
+                          : AutoScrollContainer(
+                              alwaysScroll: true,
+                              child: ListView.builder(
+                                padding: const EdgeInsets.all(16),
+                                itemCount: _filteredCategories.length,
+                                itemBuilder: (ctx, i) => _buildCategorySection(_filteredCategories[i]),
+                              ),
+                            ),
+                    ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _buildEmptyState() {
+    return Center(
+      child: Column(
+        mainAxisAlignment: MainAxisAlignment.center,
+        children: [
+          Icon(Icons.search_off, size: 64, color: Colors.grey.shade400),
+          const SizedBox(height: 16),
+          Text(
+            'No settings found',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: Colors.grey.shade600),
+          ),
+          const SizedBox(height: 8),
+          Text(
+            'Try a different search term',
+            style: TextStyle(fontSize: 14, color: Colors.grey.shade500),
+          ),
+        ],
+      ),
+    );
+  }
+
+  void _showResetDialog() {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Reset Settings'),
+        content: const Text('Reset all settings to default values? This action cannot be undone.'),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+          TextButton(
+            onPressed: () async {
+              setState(() => _settings = AppSettings());
+              await _settingsService.resetSettings();
+              if (mounted) {
+                Navigator.pop(ctx);
+                ScaffoldMessenger.of(context).showSnackBar(
+                  const SnackBar(content: Text('Settings reset to defaults')),
+                );
+              }
+            },
+            child: const Text('Reset', style: TextStyle(color: Colors.red)),
+          ),
+        ],
       ),
     );
   }

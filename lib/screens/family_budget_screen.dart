@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/family_user.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_colors.dart';
 import '../widgets/connection_status.dart';
+import '../theme/modern_ui.dart';
 
 enum TransactionType { income, expense, savings, allowance, gift }
 enum TransactionCategory { food, utility, transport, education, entertainment, healthcare, clothing, other }
@@ -185,9 +187,19 @@ class _FamilyBudgetScreenState extends State<FamilyBudgetScreen> {
   }
 
   Widget _buildSummaryCard() {
-    return Card(
+    return Container(
       margin: const EdgeInsets.all(8),
-      color: AppTheme.primaryColor.withOpacity(0.1),
+      decoration: BoxDecoration(
+        gradient: LinearGradient(
+          colors: [
+            AppColors.primary.withValues(alpha: 0.1),
+            AppColors.primary.withValues(alpha: 0.05),
+          ],
+          begin: Alignment.topLeft,
+          end: Alignment.bottomRight,
+        ),
+        borderRadius: BorderRadius.circular(16),
+      ),
       child: Padding(
         padding: const EdgeInsets.all(16),
         child: Column(

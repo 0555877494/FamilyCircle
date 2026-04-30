@@ -17,6 +17,27 @@ class AppSettings {
   final bool safeZonesEnabled;
   final double displayScale;
 
+  // New settings
+  final bool twoFactorEnabled;
+  final bool biometricEnabled;
+  final bool readReceiptsEnabled;
+  final bool typingIndicatorsEnabled;
+  final bool onlineStatusEnabled;
+  final bool autoDownloadMedia;
+  final bool highQualityImages;
+  final bool autoPlayVideos;
+  final bool voiceMessagesEnabled;
+  final bool dataSaverMode;
+  final bool boldTextEnabled;
+  final bool highContrastEnabled;
+  final bool reduceMotionEnabled;
+  final double accessibilityTextScale;
+  final String profileVisibility;
+  final bool activityStatusEnabled;
+  final bool locationHistoryEnabled;
+  final bool soundEnabled;
+  final bool vibrateEnabled;
+
   AppSettings({
     this.themeMode = ThemeMode.system,
     this.fontScale = 1.0,
@@ -33,6 +54,25 @@ class AppSettings {
     this.contentFilterEnabled = true,
     this.safeZonesEnabled = false,
     this.displayScale = 1.0,
+    this.twoFactorEnabled = false,
+    this.biometricEnabled = false,
+    this.readReceiptsEnabled = true,
+    this.typingIndicatorsEnabled = true,
+    this.onlineStatusEnabled = true,
+    this.autoDownloadMedia = true,
+    this.highQualityImages = false,
+    this.autoPlayVideos = false,
+    this.voiceMessagesEnabled = true,
+    this.dataSaverMode = false,
+    this.boldTextEnabled = false,
+    this.highContrastEnabled = false,
+    this.reduceMotionEnabled = false,
+    this.accessibilityTextScale = 1.0,
+    this.profileVisibility = 'Family Only',
+    this.activityStatusEnabled = true,
+    this.locationHistoryEnabled = false,
+    this.soundEnabled = true,
+    this.vibrateEnabled = true,
   });
 
   Map<String, dynamic> toMap() {
@@ -52,6 +92,25 @@ class AppSettings {
       'contentFilterEnabled': contentFilterEnabled,
       'safeZonesEnabled': safeZonesEnabled,
       'displayScale': displayScale,
+      'twoFactorEnabled': twoFactorEnabled,
+      'biometricEnabled': biometricEnabled,
+      'readReceiptsEnabled': readReceiptsEnabled,
+      'typingIndicatorsEnabled': typingIndicatorsEnabled,
+      'onlineStatusEnabled': onlineStatusEnabled,
+      'autoDownloadMedia': autoDownloadMedia,
+      'highQualityImages': highQualityImages,
+      'autoPlayVideos': autoPlayVideos,
+      'voiceMessagesEnabled': voiceMessagesEnabled,
+      'dataSaverMode': dataSaverMode,
+      'boldTextEnabled': boldTextEnabled,
+      'highContrastEnabled': highContrastEnabled,
+      'reduceMotionEnabled': reduceMotionEnabled,
+      'accessibilityTextScale': accessibilityTextScale,
+      'profileVisibility': profileVisibility,
+      'activityStatusEnabled': activityStatusEnabled,
+      'locationHistoryEnabled': locationHistoryEnabled,
+      'soundEnabled': soundEnabled,
+      'vibrateEnabled': vibrateEnabled,
     };
   }
 
@@ -72,6 +131,25 @@ class AppSettings {
       contentFilterEnabled: map['contentFilterEnabled'] as bool? ?? true,
       safeZonesEnabled: map['safeZonesEnabled'] as bool? ?? false,
       displayScale: map['displayScale'] as double? ?? 1.0,
+      twoFactorEnabled: map['twoFactorEnabled'] as bool? ?? false,
+      biometricEnabled: map['biometricEnabled'] as bool? ?? false,
+      readReceiptsEnabled: map['readReceiptsEnabled'] as bool? ?? true,
+      typingIndicatorsEnabled: map['typingIndicatorsEnabled'] as bool? ?? true,
+      onlineStatusEnabled: map['onlineStatusEnabled'] as bool? ?? true,
+      autoDownloadMedia: map['autoDownloadMedia'] as bool? ?? true,
+      highQualityImages: map['highQualityImages'] as bool? ?? false,
+      autoPlayVideos: map['autoPlayVideos'] as bool? ?? false,
+      voiceMessagesEnabled: map['voiceMessagesEnabled'] as bool? ?? true,
+      dataSaverMode: map['dataSaverMode'] as bool? ?? false,
+      boldTextEnabled: map['boldTextEnabled'] as bool? ?? false,
+      highContrastEnabled: map['highContrastEnabled'] as bool? ?? false,
+      reduceMotionEnabled: map['reduceMotionEnabled'] as bool? ?? false,
+      accessibilityTextScale: map['accessibilityTextScale'] as double? ?? 1.0,
+      profileVisibility: map['profileVisibility'] as String? ?? 'Family Only',
+      activityStatusEnabled: map['activityStatusEnabled'] as bool? ?? true,
+      locationHistoryEnabled: map['locationHistoryEnabled'] as bool? ?? false,
+      soundEnabled: map['soundEnabled'] as bool? ?? true,
+      vibrateEnabled: map['vibrateEnabled'] as bool? ?? true,
     );
   }
 
@@ -91,6 +169,25 @@ class AppSettings {
     bool? contentFilterEnabled,
     bool? safeZonesEnabled,
     double? displayScale,
+    bool? twoFactorEnabled,
+    bool? biometricEnabled,
+    bool? readReceiptsEnabled,
+    bool? typingIndicatorsEnabled,
+    bool? onlineStatusEnabled,
+    bool? autoDownloadMedia,
+    bool? highQualityImages,
+    bool? autoPlayVideos,
+    bool? voiceMessagesEnabled,
+    bool? dataSaverMode,
+    bool? boldTextEnabled,
+    bool? highContrastEnabled,
+    bool? reduceMotionEnabled,
+    double? accessibilityTextScale,
+    String? profileVisibility,
+    bool? activityStatusEnabled,
+    bool? locationHistoryEnabled,
+    bool? soundEnabled,
+    bool? vibrateEnabled,
   }) {
     return AppSettings(
       themeMode: themeMode ?? this.themeMode,
@@ -108,6 +205,25 @@ class AppSettings {
       contentFilterEnabled: contentFilterEnabled ?? this.contentFilterEnabled,
       safeZonesEnabled: safeZonesEnabled ?? this.safeZonesEnabled,
       displayScale: displayScale ?? this.displayScale,
+      twoFactorEnabled: twoFactorEnabled ?? this.twoFactorEnabled,
+      biometricEnabled: biometricEnabled ?? this.biometricEnabled,
+      readReceiptsEnabled: readReceiptsEnabled ?? this.readReceiptsEnabled,
+      typingIndicatorsEnabled: typingIndicatorsEnabled ?? this.typingIndicatorsEnabled,
+      onlineStatusEnabled: onlineStatusEnabled ?? this.onlineStatusEnabled,
+      autoDownloadMedia: autoDownloadMedia ?? this.autoDownloadMedia,
+      highQualityImages: highQualityImages ?? this.highQualityImages,
+      autoPlayVideos: autoPlayVideos ?? this.autoPlayVideos,
+      voiceMessagesEnabled: voiceMessagesEnabled ?? this.voiceMessagesEnabled,
+      dataSaverMode: dataSaverMode ?? this.dataSaverMode,
+      boldTextEnabled: boldTextEnabled ?? this.boldTextEnabled,
+      highContrastEnabled: highContrastEnabled ?? this.highContrastEnabled,
+      reduceMotionEnabled: reduceMotionEnabled ?? this.reduceMotionEnabled,
+      accessibilityTextScale: accessibilityTextScale ?? this.accessibilityTextScale,
+      profileVisibility: profileVisibility ?? this.profileVisibility,
+      activityStatusEnabled: activityStatusEnabled ?? this.activityStatusEnabled,
+      locationHistoryEnabled: locationHistoryEnabled ?? this.locationHistoryEnabled,
+      soundEnabled: soundEnabled ?? this.soundEnabled,
+      vibrateEnabled: vibrateEnabled ?? this.vibrateEnabled,
     );
   }
 

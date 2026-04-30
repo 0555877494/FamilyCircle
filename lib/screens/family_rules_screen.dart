@@ -2,7 +2,9 @@ import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/family_user.dart';
 import '../theme/app_theme.dart';
+import '../theme/app_colors.dart';
 import '../widgets/connection_status.dart';
+import '../theme/modern_ui.dart';
 
 enum RuleCategory { behavior, screenTime, chores, homework, social, safety, bedtime, eating, other }
 enum RuleEnforcement { strict, flexible, rewardBased, noEnforcement }
@@ -68,9 +70,9 @@ class FamilyRule {
 }
 
 class FamilyRulesScreen extends StatefulWidget {
-  final FamilyUser currentUser;
+  final FamilyUser? currentUser;
   
-  const FamilyRulesScreen({super.key, required this.currentUser});
+  const FamilyRulesScreen({super.key, this.currentUser});
 
   @override
   State<FamilyRulesScreen> createState() => _FamilyRulesScreenState();
@@ -88,12 +90,12 @@ class _FamilyRulesScreenState extends State<FamilyRulesScreen> {
 
   void _loadSampleRules() {
     _rules = [
-      FamilyRule(id: 'rule_001', familyId: widget.currentUser.familyId, title: '📵 No screens during dinner', description: 'Family dinner time is device-free', category: RuleCategory.screenTime, enforcement: RuleEnforcement.strict, appliesToIds: ['user_003', 'user_004'], createdAt: DateTime.now()),
-      FamilyRule(id: 'rule_002', familyId: widget.currentUser.familyId, title: '🛏️ Make beds daily', description: 'Keep rooms tidy before school', category: RuleCategory.chores, enforcement: RuleEnforcement.strict, appliesToIds: ['user_003', 'user_004'], createdAt: DateTime.now()),
-      FamilyRule(id: 'rule_003', familyId: widget.currentUser.familyId, title: '📚 Homework first', description: 'Complete homework before TV or games', category: RuleCategory.homework, enforcement: RuleEnforcement.strict, limitValue: 2, limitUnit: 'hours', appliesToIds: ['user_003'], createdAt: DateTime.now()),
-      FamilyRule(id: 'rule_004', familyId: widget.currentUser.familyId, title: '🚪 Curfew', description: 'Be home by 9pm on weekdays', category: RuleCategory.safety, enforcement: RuleEnforcement.strict, appliesToIds: ['user_003'], createdAt: DateTime.now()),
-      FamilyRule(id: 'rule_005', familyId: widget.currentUser.familyId, title: '🙏 Prayer time', description: 'Evening prayers together', category: RuleCategory.behavior, enforcement: RuleEnforcement.flexible, appliesToIds: ['user_001', 'user_002', 'user_003', 'user_004'], createdAt: DateTime.now()),
-      FamilyRule(id: 'rule_006', familyId: widget.currentUser.familyId, title: '⏰ Bedtime', description: 'Bedtime by 8pm on school nights', category: RuleCategory.bedtime, enforcement: RuleEnforcement.strict, appliesToIds: ['user_004'], createdAt: DateTime.now()),
+      FamilyRule(id: 'rule_001', familyId: widget.currentUser?.familyId ?? 'default_family', title: '📵 No screens during dinner', description: 'Family dinner time is device-free', category: RuleCategory.screenTime, enforcement: RuleEnforcement.strict, appliesToIds: ['user_003', 'user_004'], createdAt: DateTime.now()),
+      FamilyRule(id: 'rule_002', familyId: widget.currentUser?.familyId ?? 'default_family', title: '🛏️ Make beds daily', description: 'Keep rooms tidy before school', category: RuleCategory.chores, enforcement: RuleEnforcement.strict, appliesToIds: ['user_003', 'user_004'], createdAt: DateTime.now()),
+      FamilyRule(id: 'rule_003', familyId: widget.currentUser?.familyId ?? 'default_family', title: '📚 Homework first', description: 'Complete homework before TV or games', category: RuleCategory.homework, enforcement: RuleEnforcement.strict, limitValue: 2, limitUnit: 'hours', appliesToIds: ['user_003'], createdAt: DateTime.now()),
+      FamilyRule(id: 'rule_004', familyId: widget.currentUser?.familyId ?? 'default_family', title: '🚪 Curfew', description: 'Be home by 9pm on weekdays', category: RuleCategory.safety, enforcement: RuleEnforcement.strict, appliesToIds: ['user_003'], createdAt: DateTime.now()),
+      FamilyRule(id: 'rule_005', familyId: widget.currentUser?.familyId ?? 'default_family', title: '🙏 Prayer time', description: 'Evening prayers together', category: RuleCategory.behavior, enforcement: RuleEnforcement.flexible, appliesToIds: ['user_001', 'user_002', 'user_003', 'user_004'], createdAt: DateTime.now()),
+      FamilyRule(id: 'rule_006', familyId: widget.currentUser?.familyId ?? 'default_family', title: '⏰ Bedtime', description: 'Bedtime by 8pm on school nights', category: RuleCategory.bedtime, enforcement: RuleEnforcement.strict, appliesToIds: ['user_004'], createdAt: DateTime.now()),
     ];
   }
 
@@ -290,14 +292,14 @@ class _FamilyRulesScreenState extends State<FamilyRulesScreen> {
                 if (titleController.text.isNotEmpty) {
                   final rule = FamilyRule(
                     id: _uuid.v4(),
-                    familyId: widget.currentUser.familyId,
+                    familyId: widget.currentUser?.familyId ?? 'default_family',
                     title: titleController.text,
                     description: descController.text.isEmpty ? null : descController.text,
                     category: selectedCategory,
                     enforcement: selectedEnforcement,
                     limitValue: limitValue,
                     limitUnit: limitUnit,
-                    appliesToIds: [widget.currentUser.id],
+                     appliesToIds: [widget.currentUser?.id ?? 'default_user'],
                     createdAt: DateTime.now(),
                   );
                   setState(() => _rules.add(rule));

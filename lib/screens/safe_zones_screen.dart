@@ -87,9 +87,9 @@ class LocationAlert {
 }
 
 class SafeZonesScreen extends StatefulWidget {
-  final FamilyUser currentUser;
+  final FamilyUser? currentUser;
   
-  const SafeZonesScreen({super.key, required this.currentUser});
+  const SafeZonesScreen({super.key, this.currentUser});
 
   @override
   State<SafeZonesScreen> createState() => _SafeZonesScreenState();
@@ -109,13 +109,13 @@ class _SafeZonesScreenState extends State<SafeZonesScreen> {
   void _loadSampleZones() {
     final now = DateTime.now();
     _zones = [
-      SafeZone(id: 'zone_001', familyId: widget.currentUser.familyId, name: '🏠 Home', address: '123 Maple Street', latitude: 39.7817, longitude: -89.6501, radiusMeters: 100, memberIds: ['user_001', 'user_002', 'user_003', 'user_004'], notifyIds: ['user_001', 'user_002'], createdAt: now),
-      SafeZone(id: 'zone_002', familyId: widget.currentUser.familyId, name: '🏫 Emma\'s School', address: '456 School Lane', latitude: 39.7830, longitude: -89.6450, radiusMeters: 50, memberIds: ['user_003'], notifyIds: ['user_001', 'user_002'], createdAt: now),
-      SafeZone(id: 'zone_003', familyId: widget.currentUser.familyId, name: '👵 Grandma\'s House', address: '789 Oak Avenue', latitude: 39.7900, longitude: -89.6600, radiusMeters: 75, memberIds: ['user_001', 'user_002', 'user_003', 'user_004'], notifyIds: ['user_005'], createdAt: now),
-      SafeZone(id: 'zone_004', familyId: widget.currentUser.familyId, name: '⚽ Soccer Field', address: 'Park District', latitude: 39.7850, longitude: -89.6400, radiusMeters: 30, memberIds: ['user_003'], notifyIds: ['user_001', 'user_002'], createdAt: now),
+      SafeZone(id: 'zone_001', familyId: widget.currentUser?.familyId ?? 'default_family', name: '🏠 Home', address: '123 Maple Street', latitude: 39.7817, longitude: -89.6501, radiusMeters: 100, memberIds: ['user_001', 'user_002', 'user_003', 'user_004'], notifyIds: ['user_001', 'user_002'], createdAt: now),
+      SafeZone(id: 'zone_002', familyId: widget.currentUser?.familyId ?? 'default_family', name: '🏫 Emma\'s School', address: '456 School Lane', latitude: 39.7830, longitude: -89.6450, radiusMeters: 50, memberIds: ['user_003'], notifyIds: ['user_001', 'user_002'], createdAt: now),
+      SafeZone(id: 'zone_003', familyId: widget.currentUser?.familyId ?? 'default_family', name: '👵 Grandma\'s House', address: '789 Oak Avenue', latitude: 39.7900, longitude: -89.6600, radiusMeters: 75, memberIds: ['user_001', 'user_002', 'user_003', 'user_004'], notifyIds: ['user_005'], createdAt: now),
+      SafeZone(id: 'zone_004', familyId: widget.currentUser?.familyId ?? 'default_family', name: '⚽ Soccer Field', address: 'Park District', latitude: 39.7850, longitude: -89.6400, radiusMeters: 30, memberIds: ['user_003'], notifyIds: ['user_001', 'user_002'], createdAt: now),
     ];
     _alerts = [
-      LocationAlert(id: 'alert_001', familyId: widget.currentUser.familyId, memberId: 'user_003', latitude: 39.7817, longitude: -89.6501, isEntering: true, timestamp: now.subtract(const Duration(minutes: 30))),
+      LocationAlert(id: 'alert_001', familyId: widget.currentUser?.familyId ?? 'default_family', memberId: 'user_003', latitude: 39.7817, longitude: -89.6501, isEntering: true, timestamp: now.subtract(const Duration(minutes: 30))),
     ];
   }
 
@@ -265,14 +265,14 @@ class _SafeZonesScreenState extends State<SafeZonesScreen> {
                 if (nameController.text.isNotEmpty) {
                   final zone = SafeZone(
                     id: _uuid.v4(),
-                    familyId: widget.currentUser.familyId,
+                    familyId: widget.currentUser?.familyId ?? 'default_family',
                     name: nameController.text,
                     address: addressController.text.isEmpty ? null : addressController.text,
                     latitude: 37.7749,
                     longitude: -122.4194,
                     radiusMeters: radius,
-                    memberIds: [widget.currentUser.id],
-                    notifyIds: [widget.currentUser.id],
+                    memberIds: [widget.currentUser?.id ?? 'default_user'],
+                    notifyIds: [widget.currentUser?.id ?? 'default_user'],
                     createdAt: DateTime.now(),
                   );
                   setState(() => _zones.add(zone));

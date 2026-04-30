@@ -1,5 +1,4 @@
 .firebase/
-.firebase/
 *.lock
 pubspec.lock
 build/
@@ -11,3 +10,4 @@ build/
 .idea/
 .vscode/
 *.iml
+.firebase/

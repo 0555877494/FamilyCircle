@@ -3,6 +3,7 @@ import 'package:uuid/uuid.dart';
 import '../models/family_user.dart';
 import '../services/file_service.dart';
 import '../widgets/connection_status.dart';
+import '../theme/modern_ui.dart';
 
 enum HealthRecordType { checkup, illness, injury, medication, vaccination, dental, vision, mental, other }
 
@@ -196,22 +197,73 @@ class _FamilyHealthScreenState extends State<FamilyHealthScreen> {
   }
 
   Widget _buildRecordCard(HealthRecord record) {
-    return Card(
-      margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
-      child: ListTile(
-        leading: CircleAvatar(
-          backgroundColor: _getTypeColor(record.type).withOpacity(0.2),
-          child: Icon(_getTypeIcon(record.type), color: _getTypeColor(record.type)),
+    final color = _getTypeColor(record.type);
+    return Padding(
+      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      child: HoverCard(
+        onTap: () {},
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Row(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Container(
+                width: 48,
+                height: 48,
+                decoration: BoxDecoration(
+                  color: color.withValues(alpha: 0.1),
+                  borderRadius: BorderRadius.circular(12),
+                ),
+                child: Icon(_getTypeIcon(record.type), color: color),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      record.title,
+                      style: const TextStyle(fontWeight: FontWeight.w600, fontSize: 16),
+                    ),
+                    const SizedBox(height: 4),
+                    Text(
+                      '${record.type.name.toUpperCase()} • ${_formatDate(record.date)}',
+                      style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                    ),
+                    if (record.provider != null) ...[
+                      const SizedBox(height: 4),
+                      Text(
+                        'Provider: ${record.provider}',
+                        style: TextStyle(fontSize: 13, color: Colors.grey.shade700),
+                      ),
+                    ],
+                    if (record.location != null) ...[
+                      const SizedBox(height: 2),
+                      Text(
+                        'Location: ${record.location}',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      ),
+                    ],
+                  ],
+                ),
+              ),
+              if (record.temperature != null)
+                Column(
+                  children: [
+                    Text(
+                      '${record.temperature}°F',
+                      style: const TextStyle(fontWeight: FontWeight.w500),
+                    ),
+                    if (record.weight != null)
+                      Text(
+                        '${record.weight} lbs',
+                        style: TextStyle(fontSize: 12, color: Colors.grey.shade600),
+                      ),
+                  ],
+                ),
+            ],
+          ),
         ),
-        title: Text(record.title),
-        subtitle: Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            Text('${record.type.name} | ${_formatDate(record.date)}'),
-            if (record.provider != null) Text('Provider: ${record.provider}'),
-          ],
-        ),
-        isThreeLine: record.provider != null,
       ),
     );
   }
@@ -233,9 +285,15 @@ class _FamilyHealthScreenState extends State<FamilyHealthScreen> {
       child: Column(
         mainAxisAlignment: MainAxisAlignment.center,
         children: [
-          Icon(icon, size: 64, color: Colors.grey[400]),
+          Icon(icon, size: 64, color: Colors.grey.shade400),
           const SizedBox(height: 16),
-          Text(message, style: TextStyle(color: Colors.grey[600])),
+          Text(message, style: TextStyle(color: Colors.grey.shade600)),
+          const SizedBox(height: 8),
+          ElevatedButton.icon(
+            onPressed: _showAddRecordDialog,
+            icon: const Icon(Icons.add),
+            label: const Text('Add Record'),
+          ),
         ],
       ),
     );

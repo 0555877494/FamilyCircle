@@ -1,22 +1,15 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/family_user.dart';
-import '../models/family.dart';
 import '../models/family_group.dart';
-import '../models/family_kinship.dart';
-import '../models/family_partnership.dart';
-import '../models/family_household.dart';
-import '../models/family_caregiving.dart';
-import '../models/family_function.dart';
-import '../models/message.dart';
 import '../models/calendar_event.dart';
-import '../models/parental_settings.dart';
+import '../models/family.dart';
 import '../services/family_service.dart';
 import '../services/chat_service.dart';
-import '../screens/settings_screen.dart';
 import '../services/calendar_service.dart';
 import '../services/media_service.dart';
 import '../services/parental_service.dart';
+import '../models/parental_settings.dart';
 import '../services/auth_service.dart';
 import '../services/connection_service.dart';
 import '../services/bluetooth_service.dart';
@@ -41,6 +34,8 @@ import 'family_tree_screen.dart';
 import 'family_calendar_screen.dart';
 import 'properties_screen.dart';
 import 'legacy_screen.dart';
+import 'family_projects_screen.dart';
+import 'profile_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final FamilyUser currentUser;
@@ -162,6 +157,7 @@ class _HomeScreenState extends State<HomeScreen> {
           _buildTasksTab(),
           _buildBudgetTab(),
           _buildHealthTab(),
+          _buildProjectsTab(),
           _buildSettingsTab(),
         ],
       ),
@@ -177,6 +173,7 @@ class _HomeScreenState extends State<HomeScreen> {
           BottomNavigationBarItem(icon: Icon(Icons.checklist), label: 'Tasks'),
           BottomNavigationBarItem(icon: Icon(Icons.account_balance_wallet), label: 'Budget'),
           BottomNavigationBarItem(icon: Icon(Icons.medical_services), label: 'Health'),
+          BottomNavigationBarItem(icon: Icon(Icons.folder), label: 'Projects'),
           BottomNavigationBarItem(icon: Icon(Icons.settings), label: 'Settings'),
         ],
       ),
@@ -201,20 +198,32 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _buildHealthTab() {
     return FamilyHealthScreen(currentUser: widget.currentUser);
-}
+  }
 
-Widget _buildSettingsTab() {
-  return Scaffold(
-    appBar: AppBar(title: const Text('Settings')),
-    body: ListView(
-      children: [
-        ListTile(
-          leading: const Icon(Icons.person),
-          title: const Text('Profile'),
-          subtitle: Text(widget.currentUser.firstName),
-          trailing: const Icon(Icons.chevron_right),
-        ),
-        const Divider(),
+  Widget _buildProjectsTab() {
+    return FamilyProjectsScreen(currentUser: widget.currentUser);
+  }
+
+  Widget _buildSettingsTab() {
+    return Scaffold(
+      appBar: AppBar(title: const Text('Settings')),
+      body: ListView(
+        children: [
+          ListTile(
+            leading: const Icon(Icons.person),
+            title: const Text('Profile'),
+            subtitle: Text(widget.currentUser.firstName),
+            trailing: const Icon(Icons.chevron_right),
+            onTap: () async {
+              await Navigator.push(
+                context,
+                MaterialPageRoute(
+                  builder: (_) => ProfileScreen(userId: widget.currentUser.id),
+                ),
+              );
+            },
+          ),
+          const Divider(),
         SwitchListTile(
           secondary: const Icon(Icons.dark_mode),
           title: const Text('Dark Mode'),
@@ -899,10 +908,15 @@ class _ParentalControlsScreenState extends State<ParentalControlsScreen> {
         screenTimeEnabled: _screenTimeEnabled,
         screenTimeLimitMinutes: _screenTimeLimit,
         bedtimeHour: _bedtimeHour,
+        bedtimeMinute: 0,
         contentFilterEnabled: _contentFilterEnabled,
         locationSharingEnabled: _locationSharingEnabled,
       );
-      parentalService.saveSettings(widget.currentUser.familyId, widget.currentUser.id, settings);
+      parentalService.saveSettings(
+        widget.currentUser.familyId,
+        widget.currentUser.id,
+        settings,
+      );
     } catch (e) {}
     ScaffoldMessenger.of(context).showSnackBar(const SnackBar(content: Text('Settings saved!')));
   }

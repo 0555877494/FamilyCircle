@@ -29,9 +29,9 @@ class CheckIn {
 }
 
 class CheckInsScreen extends StatefulWidget {
-  final FamilyUser currentUser;
+  final FamilyUser? currentUser;
   
-  const CheckInsScreen({super.key, required this.currentUser});
+  const CheckInsScreen({super.key, this.currentUser});
 
   @override
   State<CheckInsScreen> createState() => _CheckInsScreenState();
@@ -51,11 +51,12 @@ class _CheckInsScreenState extends State<CheckInsScreen> {
 
   void _loadSampleCheckIns() {
     final now = DateTime.now();
+    final familyId = widget.currentUser?.familyId ?? 'default_family';
     _checkIns = [
-      CheckIn(id: 'check_001', familyId: widget.currentUser.familyId, memberId: 'user_001', memberName: 'John', status: CheckInStatus.safe, message: '👍 I\'m safe', location: 'Home', timestamp: now.subtract(const Duration(minutes: 15))),
-      CheckIn(id: 'check_002', familyId: widget.currentUser.familyId, memberId: 'user_002', memberName: 'Jane', status: CheckInStatus.safe, message: '👍 I\'m safe', location: 'Grocery Store', timestamp: now.subtract(const Duration(minutes: 30))),
-      CheckIn(id: 'check_003', familyId: widget.currentUser.familyId, memberId: 'user_003', memberName: 'Emma', status: CheckInStatus.safe, message: '🏫 At school', location: 'Elementary School', timestamp: now.subtract(const Duration(hours: 1))),
-      CheckIn(id: 'check_004', familyId: widget.currentUser.familyId, memberId: 'user_005', memberName: 'Mary', status: CheckInStatus.safe, message: '💕 Doing great!', location: 'Grandma\'s House', timestamp: now.subtract(const Duration(hours: 2))),
+      CheckIn(id: 'check_001', familyId: familyId, memberId: 'user_001', memberName: 'John', status: CheckInStatus.safe, message: '👍 I\'m safe', location: 'Home', timestamp: now.subtract(const Duration(minutes: 15))),
+      CheckIn(id: 'check_002', familyId: familyId, memberId: 'user_002', memberName: 'Jane', status: CheckInStatus.safe, message: '👍 I\'m safe', location: 'Grocery Store', timestamp: now.subtract(const Duration(minutes: 30))),
+      CheckIn(id: 'check_003', familyId: familyId, memberId: 'user_003', memberName: 'Emma', status: CheckInStatus.safe, message: '🏫 At school', location: 'Elementary School', timestamp: now.subtract(const Duration(hours: 1))),
+      CheckIn(id: 'check_004', familyId: familyId, memberId: 'user_005', memberName: 'Mary', status: CheckInStatus.safe, message: '💕 Doing great!', location: 'Grandma\'s House', timestamp: now.subtract(const Duration(hours: 2))),
     ];
     _pendingCount = 2;
   }
@@ -242,11 +243,14 @@ class _CheckInsScreenState extends State<CheckInsScreen> {
   }
 
   void _doQuickCheckIn(CheckInStatus status) {
+    final currentUser = widget.currentUser;
+    if (currentUser == null) return;
+    
     final checkIn = CheckIn(
       id: _uuid.v4(),
-      familyId: widget.currentUser.familyId,
-      memberId: widget.currentUser.id,
-      memberName: widget.currentUser.firstName,
+      familyId: currentUser.familyId,
+      memberId: currentUser.id,
+      memberName: currentUser.firstName,
       status: status,
       message: status == CheckInStatus.emergency ? 'NEED HELP!' : null,
       timestamp: DateTime.now(),

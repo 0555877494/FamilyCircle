@@ -217,4 +217,8 @@ class FamilyService {
       'householdName': name,
     });
   }
+
+  Future<void> updateFamily(Family family) async {
+    await _firestore.collection('families').doc(family.id).update(family.toMap());
+  }
 }

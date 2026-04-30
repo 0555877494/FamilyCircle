@@ -5,6 +5,7 @@ import '../models/message.dart';
 import '../services/chat_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/connection_status.dart';
+import '../widgets/skeleton_loader.dart';
 
 class ChatScreen extends StatefulWidget {
   final FamilyGroup group;
@@ -23,6 +24,7 @@ class ChatScreen extends StatefulWidget {
 class _ChatScreenState extends State<ChatScreen> {
   final _messageController = TextEditingController();
   List<Message> _messages = [];
+  bool _isLoading = true;
 
   @override
   void initState() {
@@ -34,10 +36,16 @@ class _ChatScreenState extends State<ChatScreen> {
     try {
       final chatService = ChatService();
       chatService.getMessagesStream(widget.group.id).listen((msgs) {
-        if (mounted) setState(() => _messages = msgs);
+        if (mounted) {
+          setState(() {
+            _messages = msgs;
+            _isLoading = false;
+          });
+        }
       });
     } catch (e) {
       _loadFromMemory();
+      setState(() => _isLoading = false);
     }
   }
 
@@ -67,13 +75,15 @@ class _ChatScreenState extends State<ChatScreen> {
       body: Column(
         children: [
           Expanded(
-            child: _messages.isEmpty
-                ? const Center(child: Text('No messages yet'))
-                : ListView.builder(
-                    reverse: true,
-                    itemCount: _messages.length,
-                    itemBuilder: (ctx, i) => _buildMessageTile(_messages[_messages.length - 1 - i]),
-                  ),
+            child: _isLoading
+                ? const ChatSkeleton()
+                : _messages.isEmpty
+                    ? const Center(child: Text('No messages yet'))
+                    : ListView.builder(
+                        reverse: true,
+                        itemCount: _messages.length,
+                        itemBuilder: (ctx, i) => _buildMessageTile(_messages[_messages.length - 1 - i]),
+                      ),
           ),
           _buildInputBar(),
         ],

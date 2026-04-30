@@ -12,6 +12,8 @@ import 'services/location_service.dart';
 import 'services/parental_service.dart';
 import 'services/bluetooth_service.dart';
 import 'services/connection_service.dart';
+import 'services/project_service.dart';
+import 'services/user_service.dart';
 import 'screens/auth_screen.dart';
 
 void main() async {
@@ -41,6 +43,8 @@ class FamilyCircleApp extends StatelessWidget {
         Provider(create: (_) => FamilyService()),
         Provider(create: (_) => LocationService()),
         Provider(create: (_) => ParentalService()),
+        Provider(create: (_) => ProjectService()),
+        Provider(create: (_) => UserService()),
         Provider<ConnectionService>.value(value: connectionService),
         Provider<BluetoothService>.value(value: bluetoothService),
       ],
