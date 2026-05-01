@@ -3,6 +3,9 @@ import '../models/family.dart';
 import '../models/family_user.dart';
 import '../models/family_caregiving.dart';
 import '../models/family_function.dart';
+import '../models/family_kinship.dart';
+import '../models/family_partnership.dart';
+import '../models/relationship.dart';
 import '../theme/app_theme.dart';
 import '../widgets/connection_status.dart';
 
@@ -51,11 +54,11 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
   }
 
   Widget _buildTabBar() {
-    final tabs = ['Overview', 'Members', ' Kinship', 'Partnership', 'Household', 'Caregiving', 'Functions'];
+    final tabs = ['Overview', 'Members', 'Relationships', 'Kinship', 'Partnership', 'Household', 'Caregiving', 'Functions'];
     return SingleChildScrollView(
       scrollDirection: Axis.horizontal,
       child: Row(
-        children: List.generate(tabs.length, (i) => 
+        children: List.generate(tabs.length, (i) =>
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 4, vertical: 8),
             child: ChoiceChip(
@@ -73,25 +76,33 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
     switch (_selectedTab) {
       case 0: return _buildOverviewTab();
       case 1: return _buildMembersTab();
-      case 2: return _buildKinshipTab();
-      case 3: return _buildPartnershipTab();
-      case 4: return _buildHouseholdTab();
-      case 5: return _buildCaregivingTab();
-      case 6: return _buildFunctionsTab();
+      case 2: return _buildRelationshipsTab();
+      case 3: return _buildKinshipTab();
+      case 4: return _buildPartnershipTab();
+      case 5: return _buildHouseholdTab();
+      case 6: return _buildCaregivingTab();
+      case 7: return _buildFunctionsTab();
       default: return _buildOverviewTab();
     }
   }
 
   Widget _buildOverviewTab() {
+    final headOfHousehold = widget.family.headOfHouseholdId != null
+        ? widget.family.members.where((m) => m.id == widget.family.headOfHouseholdId).firstOrNull
+        : null;
+
     return ListView(
       padding: const EdgeInsets.all(16),
       children: [
         _buildInfoCard('Family Structure', widget.family.structureType.name.toUpperCase(), Icons.account_tree),
         if (widget.family.householdName != null)
           _buildInfoCard('Household Name', widget.family.householdName!, Icons.home),
+        if (headOfHousehold != null)
+          _buildInfoCard('Head of Household', '${headOfHousehold.firstName} ${headOfHousehold.lastName ?? ''}', Icons.star),
         _buildInfoCard('Members', '${widget.family.members.length}', Icons.people),
         _buildInfoCard('Created', _formatDate(widget.family.createdAt), Icons.calendar_today),
         const SizedBox(height: 16),
+        _buildInfoCard('Relationships', '${widget.family.relationships.length}', Icons.people_outline),
         _buildInfoCard('Kinship Ties', '${widget.family.kinshipTies.length}', Icons.favorite),
         _buildInfoCard('Partnerships', '${widget.family.partnerships.length}', Icons.favorite_border),
         _buildInfoCard('Households', '${widget.family.households.length}', Icons.house),
@@ -116,14 +127,46 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
       itemCount: widget.family.members.length,
       itemBuilder: (ctx, i) {
         final member = widget.family.members[i];
+        final isHead = member.id == widget.family.headOfHouseholdId;
         return ListTile(
           leading: CircleAvatar(
-            backgroundColor: AppTheme.primaryColor,
+            backgroundColor: isHead ? Colors.amber : AppTheme.primaryColor,
             child: Text(member.firstName[0].toUpperCase()),
           ),
-          title: Text('${member.firstName} ${member.lastName ?? ''}'),
+          title: Row(
+            children: [
+              Text('${member.firstName} ${member.lastName ?? ''}'),
+              if (isHead) ...[
+                const SizedBox(width: 8),
+                const Chip(label: Text('Head', style: TextStyle(fontSize: 12)), padding: EdgeInsets.zero),
+              ],
+            ],
+          ),
           subtitle: Text('${member.role.name.toUpperCase()} | ${member.nationality ?? 'No nationality'}'),
           trailing: member.dateOfBirth != null ? Text(_formatDate(member.dateOfBirth!)) : null,
+        );
+      },
+    );
+  }
+
+  Widget _buildRelationshipsTab() {
+    if (widget.family.relationships.isEmpty) {
+      return _buildEmptyState('No relationships defined', Icons.people_outline);
+    }
+    return ListView.builder(
+      itemCount: widget.family.relationships.length,
+      itemBuilder: (ctx, i) {
+        final rel = widget.family.relationships[i];
+        final memberA = widget.family.members.where((m) => m.id == rel.memberAId).firstOrNull;
+        final memberB = widget.family.members.where((m) => m.id == rel.memberBId).firstOrNull;
+        return ListTile(
+          leading: CircleAvatar(
+            backgroundColor: Colors.blue[100],
+            child: const Icon(Icons.people_outline, color: Colors.blue),
+          ),
+          title: Text('${memberA?.firstName ?? 'Unknown'} → ${memberB?.firstName ?? 'Unknown'}'),
+          subtitle: Text(rel.type.name.toUpperCase()),
+          trailing: Text('#${rel.id.substring(0, 4)}'),
         );
       },
     );
@@ -282,6 +325,11 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
         mainAxisSize: MainAxisSize.min,
         children: [
           ListTile(
+            leading: const Icon(Icons.people_outline),
+            title: const Text('Add Relationship'),
+            onTap: () { Navigator.pop(ctx); _showAddRelationshipDialog(); },
+          ),
+          ListTile(
             leading: const Icon(Icons.person_add),
             title: const Text('Add Kinship'),
             onTap: () { Navigator.pop(ctx); _showAddKinshipDialog(); },
@@ -421,6 +469,69 @@ class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
         actions: [
           TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
         ],
+      ),
+    );
+  }
+
+  void _showAddRelationshipDialog() {
+    String? selectedMemberA;
+    String? selectedMemberB;
+    RelationshipType? selectedType;
+
+    showDialog(
+      context: context,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setState) => AlertDialog(
+          title: const Text('Add Relationship'),
+          content: Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropdownButton<String>(
+                hint: const Text('Member A'),
+                value: selectedMemberA,
+                isExpanded: true,
+                items: widget.family.members.map((m) => DropdownMenuItem(
+                  value: m.id,
+                  child: Text('${m.firstName} ${m.lastName ?? ''}'),
+                )).toList(),
+                onChanged: (v) => setState(() => selectedMemberA = v),
+              ),
+              const SizedBox(height: 8),
+              DropdownButton<String>(
+                hint: const Text('Member B'),
+                value: selectedMemberB,
+                isExpanded: true,
+                items: widget.family.members.map((m) => DropdownMenuItem(
+                  value: m.id,
+                  child: Text('${m.firstName} ${m.lastName ?? ''}'),
+                )).toList(),
+                onChanged: (v) => setState(() => selectedMemberB = v),
+              ),
+              const SizedBox(height: 8),
+              DropdownButton<RelationshipType>(
+                hint: const Text('Relationship Type'),
+                value: selectedType,
+                isExpanded: true,
+                items: RelationshipType.values.map((t) => DropdownMenuItem(
+                  value: t,
+                  child: Text(t.name.toUpperCase()),
+                )).toList(),
+                onChanged: (v) => setState(() => selectedType = v),
+              ),
+            ],
+          ),
+          actions: [
+            TextButton(onPressed: () => Navigator.pop(ctx), child: const Text('Cancel')),
+            TextButton(
+              onPressed: () {
+                if (selectedMemberA != null && selectedMemberB != null && selectedType != null) {
+                  Navigator.pop(ctx);
+                }
+              },
+              child: const Text('Add'),
+            ),
+          ],
+        ),
       ),
     );
   }

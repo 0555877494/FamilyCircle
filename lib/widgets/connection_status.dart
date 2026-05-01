@@ -97,7 +97,7 @@ class _ConnectionStatusIndicatorState extends State<ConnectionStatusIndicator> {
   String _getStatusText(ConnectionType type) {
     switch (type) {
       case ConnectionType.wifi:
-        return 'Firebase';
+        return 'Online';
       case ConnectionType.bluetooth:
         return 'Bluetooth';
       case ConnectionType.wifiDirect:
@@ -174,7 +174,7 @@ color: info?.isConnected == true
           const SizedBox(height: 12),
           _buildMethodTile(
             icon: Icons.cloud,
-            title: 'Firebase Cloud',
+            title: 'Online',
             subtitle: 'Internet sync (primary)',
             color: Colors.green,
             status: 'Ready',
@@ -260,7 +260,7 @@ color: info?.isConnected == true
     return Container(
       padding: const EdgeInsets.all(12),
       decoration: BoxDecoration(
-        color: Colors.grey.withValues(alpha: 0.1),
+        color: Colors.grey.withValues(alpha:0.1),
         borderRadius: BorderRadius.circular(8),
       ),
       child: Row(
@@ -275,7 +275,7 @@ color: info?.isConnected == true
             builder: (context, snapshot) {
               final info = snapshot.data;
               if (info?.isConnected == true) {
-                return const Icon(Icons.cloud_done, color: Colors.green, size: 20);
+                return const Icon(Icons.wifi, color: Colors.green, size: 20);
               }
               return const SizedBox.shrink();
             },

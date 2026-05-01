@@ -1,7 +1,18 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'package:uuid/uuid.dart';
 import '../models/family_user.dart';
 import '../models/family.dart';
+import '../models/family_group.dart';
+import '../models/calendar_event.dart';
+import '../models/parental_settings.dart';
 import '../services/auth_service.dart';
+import '../services/chat_service.dart';
+import '../services/family_service.dart';
+import '../services/media_service.dart';
+import '../services/calendar_service.dart';
+import '../services/parental_service.dart';
+import '../theme/app_theme.dart';
 import '../widgets/connection_status.dart';
 import 'chat_screen.dart';
 import 'family_tasks_screen.dart';
@@ -11,6 +22,16 @@ import 'video_call_screen.dart';
 import 'family_tree_screen.dart';
 import 'family_projects_screen.dart';
 import 'profile_screen.dart';
+import 'family_detail_screen.dart';
+import 'family_budget_screen.dart';
+import 'family_rules_screen.dart';
+import 'activity_log_screen.dart';
+import 'safe_zones_screen.dart';
+import 'check_ins_screen.dart';
+import 'reminders_screen.dart';
+import 'emergency_contacts_screen.dart';
+import 'properties_screen.dart';
+import 'legacy_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   final FamilyUser currentUser;
