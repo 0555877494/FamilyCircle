@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/family_user.dart';
-import '../theme/app_theme.dart';
 import '../theme/app_colors.dart';
 import '../widgets/connection_status.dart';
-import '../theme/modern_ui.dart';
 
 enum RuleCategory { behavior, screenTime, chores, homework, social, safety, bedtime, eating, other }
 enum RuleEnforcement { strict, flexible, rewardBased, noEnforcement }

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../models/family_user.dart';
 import '../models/family_kinship.dart';
-import '../theme/app_theme.dart';
 import '../widgets/connection_status.dart';
 
 class FamilyTreeScreen extends StatefulWidget {
@@ -79,7 +78,7 @@ class _FamilyTreeScreenState extends State<FamilyTreeScreen> {
         Container(
           padding: const EdgeInsets.symmetric(vertical: 8, horizontal: 12),
           decoration: BoxDecoration(
-            color: color.withOpacity(0.2),
+            color: color.withValues(alpha: 0.2),
             borderRadius: BorderRadius.circular(8),
           ),
           child: Text(title, style: TextStyle(fontWeight: FontWeight.bold, color: color)),
@@ -99,7 +98,7 @@ class _FamilyTreeScreenState extends State<FamilyTreeScreen> {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
       decoration: BoxDecoration(
-        color: color.withOpacity(0.1),
+        color: color.withValues(alpha: 0.1),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(color: color),
       ),

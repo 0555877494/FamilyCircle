@@ -1,5 +1,3 @@
-import 'family_user.dart';
-
 enum HealthEventType {
   checkup,
   hospitalization,

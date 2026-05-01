@@ -23,49 +23,11 @@ class LegacyScreen extends StatefulWidget {
 }
 
 class _LegacyScreenState extends State<LegacyScreen> {
-  final _uuid = const Uuid();
   int _selectedSection = 0;
-
-  List<DeathRecord> _deathRecords = [];
-  List<ExtendedHealthEvent> _healthEvents = [];
-  List<FamilyGathering> _gatherings = [];
-  List<Wedding> _weddings = [];
-  List<Funeral> _funerals = [];
-  List<FamilyHistoryEntry> _historyItems = [];
-  List<FamilyHeirloom> _heirlooms = [];
 
   @override
   void initState() {
     super.initState();
-    _loadSampleData();
-  }
-
-  void _loadSampleData() {
-    final now = DateTime.now();
-    _deathRecords = [
-      DeathRecord(id: '1', familyId: widget.currentUser.familyId, memberId: 'grandpa1', memberName: 'Robert Smith', dateOfDeath: now.subtract(const Duration(days: 365 * 3)), funeralDate: now.subtract(const Duration(days: 365 * 3 - 2)), funeralLocation: 'Oak Hill Chapel', cemeteryPlot: 'Plot 45A', estateExecutor: 'parent1', createdAt: now),
-    ];
-    _healthEvents = [
-      ExtendedHealthEvent(id: '1', familyId: widget.currentUser.familyId, memberId: 'parent1', memberName: 'John', title: 'Heart Surgery', description: 'Triple bypass', type: HealthEventType.surgery, date: now.subtract(const Duration(days: 180)), facility: 'St. Mary\'s Hospital', notes: 'Successful procedure', createdAt: now),
-      ExtendedHealthEvent(id: '2', familyId: widget.currentUser.familyId, memberId: 'grandma1', memberName: 'Mary', title: 'Diabetes Diagnosis', description: 'Type 2 Diabetes', type: HealthEventType.chronicCondition, date: now.subtract(const Duration(days: 400)), notes: 'Managing with diet and medication', createdAt: now),
-    ];
-    _gatherings = [
-      FamilyGathering(id: '1', familyId: widget.currentUser.familyId, title: 'Thanksgiving 2024', type: GatheringType.holiday, location: '123 Maple Street', date: now.subtract(const Duration(days: 150)), hostName: 'Jane', attendeeIds: ['parent1', 'parent2', 'child1', 'child2', 'grandma1'], attendeeNames: ['John', 'Jane', 'Emma', 'Tom', 'Mary'], notes: 'Great food!', createdAt: now),
-      FamilyGathering(id: '2', familyId: widget.currentUser.familyId, title: 'Emma\'s 5th Birthday', type: GatheringType.birthday, location: 'Central Park', date: now.subtract(const Duration(days: 30)), hostName: 'Jane', attendeeIds: ['parent1', 'parent2', 'child1', 'grandma1', 'grandpa1'], attendeeNames: ['John', 'Jane', 'Emma', 'Mary', 'Bob'], notes: 'Princess theme', createdAt: now),
-    ];
-    _weddings = [
-      Wedding(id: '1', familyId: widget.currentUser.familyId, partner1Name: 'John', partner2Name: 'Jane', weddingDate: now.subtract(const Duration(days: 365 * 15)), venue: 'Rose Garden', guestList: List.generate(150, (i) => 'Guest $i'), officiant: 'Pastor Williams', notes: 'Beautiful summer wedding', createdAt: now),
-    ];
-    _funerals = [
-      Funeral(id: '1', familyId: widget.currentUser.familyId, deceasedName: 'Robert Smith', type: FuneralType.memorial, serviceDate: now.subtract(const Duration(days: 365 * 3 - 2)), serviceLocation: 'Oak Hill Chapel', officiant: 'Pastor Williams', notes: 'Full house', createdAt: now),
-    ];
-    _historyItems = [
-      FamilyHistoryEntry(id: '1', familyId: widget.currentUser.familyId, title: 'Family origins', description: 'Our ancestors arrived from Ireland in 1850', type: HistoricalEventType.immigration, date: now.subtract(const Duration(days: 365 * 174)), location: 'Boston, MA', originCountry: 'Ireland', destinationCountry: 'USA', createdAt: now),
-    ];
-    _heirlooms = [
-      FamilyHeirloom(id: '1', familyId: widget.currentUser.familyId, name: 'Grandma\'s Wedding Dress', description: 'Handmade lace dress worn by generations', category: HeirloomCategory.clothing, status: HeirloomStatus.inFamily, currentHolderId: 'parent2', currentHolderName: 'Jane', generationPassed: 4, createdAt: now),
-      FamilyHeirloom(id: '2', familyId: widget.currentUser.familyId, name: 'Antique Piano', description: 'Steinway from 1920', category: HeirloomCategory.instrument, status: HeirloomStatus.inFamily, currentHolderId: 'parent1', currentHolderName: 'John', generationPassed: 3, createdAt: now),
-    ];
   }
 
   @override

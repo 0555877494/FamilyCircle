@@ -1,10 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/family_user.dart';
-import '../theme/app_theme.dart';
 import '../theme/app_colors.dart';
 import '../widgets/connection_status.dart';
-import '../theme/modern_ui.dart';
 
 enum TransactionType { income, expense, savings, allowance, gift }
 enum TransactionCategory { food, utility, transport, education, entertainment, healthcare, clothing, other }
@@ -274,7 +272,7 @@ class _FamilyBudgetScreenState extends State<FamilyBudgetScreen> {
     final isIncome = t.type == TransactionType.income || t.type == TransactionType.savings;
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: _getCategoryColor(t.category).withOpacity(0.2),
+        backgroundColor: _getCategoryColor(t.category).withValues(alpha: 0.2),
         child: Icon(_getCategoryIcon(t.category), color: _getCategoryColor(t.category)),
       ),
       title: Text(t.title),

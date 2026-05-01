@@ -130,7 +130,7 @@ class _RemindersScreenState extends State<RemindersScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: reminder.isActive ? AppTheme.primaryColor.withOpacity(0.2) : Colors.grey[200],
+          backgroundColor: reminder.isActive ? AppTheme.primaryColor.withValues(alpha: 0.2) : Colors.grey[200],
           child: Icon(Icons.alarm, color: reminder.isActive ? AppTheme.primaryColor : Colors.grey),
         ),
         title: Text(reminder.title),

@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/family_user.dart';
-import '../theme/app_theme.dart';
 import '../widgets/connection_status.dart';
 
 class SafeZone {
@@ -151,7 +150,7 @@ class _SafeZonesScreenState extends State<SafeZonesScreen> {
   Widget _buildAlertsSection() {
     return Container(
       padding: const EdgeInsets.all(8),
-      color: Colors.red.withOpacity(0.1),
+      color: Colors.red.withValues(alpha: 0.1),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [

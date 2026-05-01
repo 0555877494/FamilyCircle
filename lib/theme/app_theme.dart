@@ -108,37 +108,22 @@ class AppTheme {
       ),
       navigationBarTheme: NavigationBarThemeData(
         backgroundColor: Colors.white,
-        indicatorColor: AppColors.primaryLight.withOpacity(0.2),
-        surfaceTintColor: Colors.transparent,
-        elevation: 0,
-        labelTextStyle: WidgetStateProperty.resolveWith((states) {
-          if (states.contains(WidgetState.selected)) {
-            return const TextStyle(
-              fontSize: 12,
-              fontWeight: FontWeight.w600,
-              color: AppColors.primary,
-            );
-          }
-          return TextStyle(
-            fontSize: 12,
-            color: Colors.grey.shade400,
-          );
-        }),
-      ),
-      navigationRailTheme: NavigationRailThemeData(
-        backgroundColor: Colors.white,
-        selectedIconTheme: const IconThemeData(color: AppColors.primary),
-        unselectedIconTheme: IconThemeData(color: Colors.grey.shade400),
-        selectedLabelTextStyle: const TextStyle(
-          color: AppColors.primary,
-          fontWeight: FontWeight.w600,
-        ),
-        unselectedLabelTextStyle: TextStyle(color: Colors.grey.shade400),
-        indicatorColor: AppColors.primaryLight.withOpacity(0.2),
+indicatorColor: AppColors.primaryLight.withValues(alpha: 0.2),
+       ),
+       navigationRailTheme: NavigationRailThemeData(
+         backgroundColor: Colors.white,
+         selectedIconTheme: const IconThemeData(color: AppColors.primary),
+         unselectedIconTheme: IconThemeData(color: Colors.grey.shade400),
+         selectedLabelTextStyle: const TextStyle(
+           color: AppColors.primary,
+           fontWeight: FontWeight.w600,
+         ),
+         unselectedLabelTextStyle: TextStyle(color: Colors.grey.shade400),
+         indicatorColor: AppColors.primaryLight.withValues(alpha: 0.2),
       ),
       chipTheme: ChipThemeData(
         backgroundColor: const Color(0xFFF3F4F6),
-        selectedColor: AppColors.primaryLight.withOpacity(0.2),
+        selectedColor: AppColors.primaryLight.withValues(alpha: 0.2),
         labelStyle: const TextStyle(fontSize: 14),
         padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
         shape: RoundedRectangleBorder(

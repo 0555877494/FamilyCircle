@@ -1,5 +1,3 @@
-import 'family_user.dart';
-
 class DeathRecord {
   final String id;
   final String familyId;

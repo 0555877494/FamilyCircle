@@ -19,14 +19,14 @@ class ModernUI {
   }) {
     return BoxDecoration(
       borderRadius: BorderRadius.circular(borderRadius),
-      color: Colors.white.withOpacity( opacity),
+      color: Colors.white.withValues(alpha: opacity),
       border: Border.all(
-        color: Colors.white.withOpacity( 0.2),
+        color: Colors.white.withValues(alpha: 0.2),
         width: 1,
       ),
       boxShadow: [
         BoxShadow(
-          color: Colors.black.withOpacity( 0.1),
+          color: Colors.black.withValues(alpha: 0.1),
           blurRadius: 20,
           offset: const Offset(0, 10),
         ),
@@ -43,7 +43,7 @@ class ModernUI {
       borderRadius: BorderRadius.circular(borderRadius),
       boxShadow: [
         BoxShadow(
-          color: AppColors.primary.withOpacity( 0.3),
+          color: AppColors.primary.withValues(alpha: 0.3),
           blurRadius: 20,
           offset: const Offset(0, 10),
         ),
@@ -62,7 +62,7 @@ class ModernUI {
       boxShadow: elevated
           ? [
               BoxShadow(
-                color: Colors.black.withOpacity( 0.08),
+                color: Colors.black.withValues(alpha: 0.08),
                 blurRadius: 20,
                 offset: const Offset(0, 4),
               ),
@@ -132,26 +132,26 @@ class _HoverCardState extends State<HoverCard> {
           decoration: BoxDecoration(
             gradient: _isHovered && widget.gradient != null ? widget.gradient : null,
             color: _isHovered && widget.gradient == null
-                ? (isDark ? baseColor.withOpacity( 0.8) : const Color(0xFFF9FAFB))
+                ? (isDark ? baseColor.withValues(alpha: 0.8) : const Color(0xFFF9FAFB))
                 : baseColor,
             borderRadius: BorderRadius.circular(widget.borderRadius),
             border: Border.all(
               color: _isHovered
-                  ? AppColors.primary.withOpacity( 0.3)
+                  ? AppColors.primary.withValues(alpha: 0.3)
                   : borderColor,
               width: _isHovered ? 2 : 1,
             ),
             boxShadow: _isHovered && widget.enableShadow
                 ? [
                     BoxShadow(
-                      color: AppColors.primary.withOpacity(0.15),
+                      color: AppColors.primary.withValues(alpha: 0.15),
                       blurRadius: 25,
                       offset: const Offset(0, 10),
                     ),
                   ]
                 : [
                     BoxShadow(
-                      color: Colors.black.withOpacity(isDark ? 0.3 : 0.05),
+                      color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.05),
                       blurRadius: 10,
                       offset: const Offset(0, 2),
                     ),
@@ -246,7 +246,7 @@ class _GradientButtonState extends State<GradientButton>
                             ? LinearGradient(
                                 colors: [
                                   widget.color!,
-                                  widget.color!.withOpacity( 0.8),
+                                  widget.color!.withValues(alpha: 0.8),
                                 ],
                               )
                             : AppColors.primaryGradient),
@@ -260,8 +260,8 @@ class _GradientButtonState extends State<GradientButton>
                     ? null
                     : [
                         BoxShadow(
-                          color: (widget.color ?? AppColors.primary)
-                              .withOpacity( 0.4),
+color: (widget.color ?? AppColors.primary)
+                               .withValues(alpha: 0.4),
                           blurRadius: 15,
                           offset: const Offset(0, 5),
                         ),
@@ -350,7 +350,7 @@ class _InteractiveListTileState extends State<InteractiveListTile> {
         curve: Curves.easeInOut,
         decoration: BoxDecoration(
           color: _isHovered
-              ? (isDark ? accentColor.withOpacity( 0.1) : accentColor.withOpacity( 0.05))
+              ? (isDark ? accentColor.withValues(alpha: 0.1) : accentColor.withValues(alpha: 0.05))
               : Colors.transparent,
           borderRadius: BorderRadius.circular(12),
         ),
@@ -421,10 +421,10 @@ class ColorCategoryBadge extends StatelessWidget {
         vertical: isSmall ? 2 : 4,
       ),
       decoration: BoxDecoration(
-        color: badgeColor.withOpacity( 0.15),
+        color: badgeColor.withValues(alpha: 0.15),
         borderRadius: BorderRadius.circular(20),
         border: Border.all(
-          color: badgeColor.withOpacity( 0.3),
+          color: badgeColor.withValues(alpha: 0.3),
         ),
       ),
       child: Text(
@@ -461,8 +461,8 @@ class StatusIndicator extends StatelessWidget {
         color: isOnline ? AppColors.success : Colors.grey,
         boxShadow: [
           BoxShadow(
-            color: (isOnline ? AppColors.success : Colors.grey)
-                .withOpacity( 0.4),
+color: (isOnline ? AppColors.success : Colors.grey)
+                 .withValues(alpha: 0.4),
             blurRadius: size / 2,
           ),
         ],
@@ -518,7 +518,7 @@ class ModernCard extends StatelessWidget {
         borderRadius: BorderRadius.circular(borderRadius),
         boxShadow: [
           BoxShadow(
-            color: Colors.black.withOpacity(isDark ? 0.3 : 0.08),
+            color: Colors.black.withValues(alpha: isDark ? 0.3 : 0.08),
             blurRadius: 20,
             offset: const Offset(0, 4),
           ),

@@ -1,5 +1,3 @@
-import 'family_user.dart';
-
 enum FamilyFunctionType {
   procreation,
   childRearing,

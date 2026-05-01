@@ -1,14 +1,8 @@
 import 'package:flutter/material.dart';
-import 'package:uuid/uuid.dart';
-import 'package:provider/provider.dart';
 import '../models/family.dart';
 import '../models/family_user.dart';
-import '../models/family_kinship.dart';
-import '../models/family_partnership.dart';
-import '../models/family_household.dart';
 import '../models/family_caregiving.dart';
 import '../models/family_function.dart';
-import '../services/family_service.dart';
 import '../theme/app_theme.dart';
 import '../widgets/connection_status.dart';
 
@@ -28,54 +22,10 @@ class FamilyDetailScreen extends StatefulWidget {
 
 class _FamilyDetailScreenState extends State<FamilyDetailScreen> {
   int _selectedTab = 0;
-  List<FamilyKinshipTie> _kinships = [];
-  List<FamilyPartnership> _partnerships = [];
-  List<FamilyHousehold> _households = [];
-  List<FamilyCaregiving> _caregivings = [];
-  List<FamilyFunction> _functions = [];
 
   @override
   void initState() {
     super.initState();
-    _loadSampleData();
-  }
-
-  void _loadSampleData() {
-    final familyId = widget.family.id;
-    final now = DateTime.now();
-    
-    _kinships = [
-      FamilyKinshipTie(id: 'kinship_001', familyId: familyId, memberAId: 'user_001', memberBId: 'user_002', kinshipType: KinshipType.parent, isBloodRelation: true),
-      FamilyKinshipTie(id: 'kinship_002', familyId: familyId, memberAId: 'user_001', memberBId: 'user_003', kinshipType: KinshipType.child, isBloodRelation: true),
-      FamilyKinshipTie(id: 'kinship_003', familyId: familyId, memberAId: 'user_002', memberBId: 'user_003', kinshipType: KinshipType.child, isBloodRelation: true),
-      FamilyKinshipTie(id: 'kinship_004', familyId: familyId, memberAId: 'user_001', memberBId: 'user_004', kinshipType: KinshipType.child, isBloodRelation: true),
-      FamilyKinshipTie(id: 'kinship_005', familyId: familyId, memberAId: 'user_002', memberBId: 'user_004', kinshipType: KinshipType.child, isBloodRelation: true),
-      FamilyKinshipTie(id: 'kinship_006', familyId: familyId, memberAId: 'user_003', memberBId: 'user_004', kinshipType: KinshipType.sibling, isBloodRelation: true),
-      FamilyKinshipTie(id: 'kinship_007', familyId: familyId, memberAId: 'user_002', memberBId: 'user_005', kinshipType: KinshipType.parent, isBloodRelation: true),
-      FamilyKinshipTie(id: 'kinship_008', familyId: familyId, memberAId: 'user_005', memberBId: 'user_006', kinshipType: KinshipType.parent, isBloodRelation: true),
-    ];
-    
-    _partnerships = [
-      FamilyPartnership(id: 'partner_001', familyId: familyId, partnerAId: 'user_001', partnerBId: 'user_002', partnershipType: PartnershipType.marriage, startDate: now.subtract(const Duration(days: 365 * 15))),
-    ];
-    
-    _households = [
-      FamilyHousehold(id: 'household_001', familyId: familyId, residenceType: ResidenceType.house, address: '123 Maple Street', city: 'Springfield', state: 'IL', residentMemberIds: ['user_001', 'user_002', 'user_003', 'user_004']),
-    ];
-    
-    _caregivings = [
-      FamilyCaregiving(id: 'care_001', familyId: familyId, caregiverId: 'user_005', recipientId: 'user_003', caregivingType: CaregivingType.parenting),
-      FamilyCaregiving(id: 'care_002', familyId: familyId, caregiverId: 'user_001', recipientId: 'user_005', caregivingType: CaregivingType.elderCare),
-    ];
-    
-    _functions = [
-      FamilyFunction(id: 'func_001', familyId: familyId, functionType: FamilyFunctionType.protection, responsibleMemberIds: ['user_001', 'user_002'], description: '🛡️ Protect family members'),
-      FamilyFunction(id: 'func_002', familyId: familyId, functionType: FamilyFunctionType.economicCooperation, responsibleMemberIds: ['user_001', 'user_002'], description: '🍽️ Provide nutrition'),
-      FamilyFunction(id: 'func_003', familyId: familyId, functionType: FamilyFunctionType.healthcare, responsibleMemberIds: ['user_001', 'user_002'], description: '🏠 Provide shelter'),
-      FamilyFunction(id: 'func_004', familyId: familyId, functionType: FamilyFunctionType.education, responsibleMemberIds: ['user_001', 'user_002'], description: '📚 Educate children'),
-      FamilyFunction(id: 'func_005', familyId: familyId, functionType: FamilyFunctionType.emotionalSupport, responsibleMemberIds: ['user_001', 'user_002', 'user_005'], description: '💕 Emotional support'),
-      FamilyFunction(id: 'func_006', familyId: familyId, functionType: FamilyFunctionType.culturalHeritage, responsibleMemberIds: ['user_005'], description: '🙏 Pass down faith'),
-    ];
   }
   
   @override

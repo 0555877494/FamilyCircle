@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/family_user.dart';
-import '../theme/app_theme.dart';
 import '../widgets/connection_status.dart';
 
 enum ActivityType { homework, chore, play, exercise, social, screenTime, creative, learning, outdoor, other }
@@ -232,7 +231,7 @@ class _ActivityLogScreenState extends State<ActivityLogScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: _getTypeColor(activity.type).withOpacity(0.2),
+          backgroundColor: _getTypeColor(activity.type).withValues(alpha: 0.2),
           child: Icon(_getTypeIcon(activity.type), color: _getTypeColor(activity.type)),
         ),
         title: Text(activity.title),

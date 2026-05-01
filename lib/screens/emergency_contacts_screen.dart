@@ -161,9 +161,9 @@ class _EmergencyContactsScreenState extends State<EmergencyContactsScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ListTile(
         leading: CircleAvatar(
-          backgroundColor: contact.isPrimary 
-            ? Colors.red.withOpacity(0.2)
-            : _getTypeColor(contact.type).withOpacity(0.2),
+backgroundColor: contact.isPrimary 
+             ? Colors.red.withValues(alpha: 0.2)
+             : _getTypeColor(contact.type).withValues(alpha: 0.2),
           child: Icon(
             _getTypeIcon(contact.type), 
             color: contact.isPrimary ? Colors.red : _getTypeColor(contact.type),

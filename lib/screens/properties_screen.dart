@@ -142,7 +142,7 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
       margin: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
       child: ExpansionTile(
         leading: CircleAvatar(
-          backgroundColor: _getTypeColor(property.type).withOpacity(0.2),
+          backgroundColor: _getTypeColor(property.type).withValues(alpha: 0.2),
           child: Icon(_getTypeIcon(property.type), color: _getTypeColor(property.type)),
         ),
         title: Text(property.name),
@@ -161,13 +161,13 @@ class _PropertiesScreenState extends State<PropertiesScreen> {
         trailing: property.lastVerified != null 
             ? Chip(
                 label: Text(_formatDate(property.lastVerified!), style: const TextStyle(fontSize: 10)),
-                backgroundColor: _isVerifiedRecently(property.lastVerified!) 
-                    ? Colors.green.withOpacity(0.2) 
-                    : Colors.orange.withOpacity(0.2),
+backgroundColor: _isVerifiedRecently(property.lastVerified!) 
+                     ? Colors.green.withValues(alpha: 0.2) 
+                     : Colors.orange.withValues(alpha: 0.2),
               )
             : Chip(
                 label: const Text('UNVERIFIED', style: TextStyle(fontSize: 10)),
-                backgroundColor: Colors.red.withOpacity(0.2),
+                backgroundColor: Colors.red.withValues(alpha: 0.2),
               ),
         children: [
           Padding(

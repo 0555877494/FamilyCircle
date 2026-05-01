@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:uuid/uuid.dart';
 import '../models/family_user.dart';
-import '../theme/app_theme.dart';
 import '../widgets/connection_status.dart';
 
 enum CheckInStatus { safe, checkingIn, notResponding, emergency }
@@ -168,7 +167,7 @@ class _CheckInsScreenState extends State<CheckInsScreen> {
   Widget _buildCheckInTile(CheckIn checkIn) {
     return ListTile(
       leading: CircleAvatar(
-        backgroundColor: _getStatusColor(checkIn.status).withOpacity(0.2),
+        backgroundColor: _getStatusColor(checkIn.status).withValues(alpha: 0.2),
         child: Icon(_getStatusIcon(checkIn.status), color: _getStatusColor(checkIn.status)),
       ),
       title: Text(checkIn.memberName),
